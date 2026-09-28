@@ -66,6 +66,30 @@ class CalculationMethodsTest < ActionDispatch::IntegrationTest
     assert_equal 0, body['sortOrder']
   end
 
+  test 'M06.F05 create 重复双键 = merge 覆盖（springboot save=merge 语义）' do
+    seed = seed_dictionary!
+
+    post '/api/calculation-methods',
+         params: { inspectionObjectCode: seed[:object].code,
+                   inspectionParameterCode: seed[:parameter].code,
+                   formula: 'value * 2' },
+         headers: auth_header, as: :json
+    assert_response :success
+
+    post '/api/calculation-methods',
+         params: { inspectionObjectCode: seed[:object].code,
+                   inspectionParameterCode: seed[:parameter].code,
+                   formula: 'value * 3' },
+         headers: auth_header, as: :json
+
+    assert_response :success
+    assert_equal 'value * 3', json(response)['formula']
+
+    get "/api/calculation-methods/#{seed[:object].code}/#{seed[:parameter].code}",
+        headers: auth_header
+    assert_equal 'value * 3', json(response)['formula']
+  end
+
   test 'M06.F05 create 缺 parameterCode -> 400 BAD_REQUEST' do
     seed = seed_dictionary!
 

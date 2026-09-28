@@ -38,9 +38,11 @@ class AuthController < ApplicationController
     render_camel(service.refresh(body))
   end
 
-  # M01.F05.I02 — 返回 {authorizeUrl, state} 跳板（2026-08-29 收敛，服务端不预拿 code）
+  # M01.F05.I02 — 返回 {authorizeUrl, state} 跳板（2026-08-29 收敛，服务端不预拿 code）。
+  # query 参数名 snake_case redirect_uri（OAuth RFC 惯例，springboot AuthApi
+  # @RequestParam("redirect_uri") 镜像；驼峰 redirectUri 不认）。
   def sso_authorize
-    render_camel(service.sso_authorize(params[:redirectUri], params[:state]))
+    render_camel(service.sso_authorize(params[:redirect_uri], params[:state]))
   end
 
   # M01.F05.I03 — code 换 token；state 校验已在前端回跳时完成

@@ -128,6 +128,23 @@ class TechnicalRequirementsTest < ActionDispatch::IntegrationTest
 
   private
 
+  test 'M06.F06 create 重复三元键 = merge 覆盖（springboot save=merge 语义）' do
+    seed = seed_dictionary!
+    create_tr(seed)
+
+    post '/api/technical-requirements',
+         params: tr_body(seed).merge(targetValue: '≥ 52.5 MPa'),
+         headers: auth_header, as: :json
+
+    assert_response :success
+    assert_equal '≥ 52.5 MPa', json(response)['targetValue']
+
+    get '/api/technical-requirements/' \
+        "#{seed[:object].code}/#{seed[:parameter].code}/#{seed[:standard].code}",
+        headers: auth_header
+    assert_equal '≥ 52.5 MPa', json(response)['targetValue']
+  end
+
   def tr_body(seed)
     { inspectionObjectCode: seed[:object].code, inspectionParameterCode: seed[:parameter].code,
       judgmentStandardCode: seed[:standard].code, requirement: '≥ 42.5 MPa',

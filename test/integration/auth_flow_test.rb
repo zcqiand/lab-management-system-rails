@@ -161,9 +161,12 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'sso authorize echoes caller redirect_uri and state (ADR-0019 no fallback)' do
+    # query 参数名是 snake_case redirect_uri（OAuth RFC 6749 §4.1.1 惯例，
+    # springboot AuthApi @RequestParam("redirect_uri") + contract-test 同款）。
+    # 2026-09-29 live 实锤：读驼峰 redirectUri → ct 全参请求 400。
     get '/api/auth/sso/authorize',
-        params: { responseType: 'code', clientId: 'lab-management',
-                  redirectUri: 'http://localhost:5203/login', state: 'csrf-123' }
+        params: { response_type: 'code', client_id: 'lab-management',
+                  redirect_uri: 'http://localhost:5203/login', state: 'csrf-123' }
     assert_response :success
     body = JSON.parse(response.body)
     assert_includes body['authorizeUrl'], 'redirect_uri=http%3A%2F%2Flocalhost%3A5203%2Flogin'

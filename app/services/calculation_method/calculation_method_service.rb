@@ -41,8 +41,13 @@ module CalculationMethod
       end
 
       now = ApplicationRecord.now_iso
-      entry = InspectionCalculationMethod.create!(create_attrs(body, object_code,
-                                                               parameter_code, now))
+      # springboot repo.save = JPA merge（同 PK 覆盖整行）——共库四方对拍下
+      # 裸 insert 会 UniqueViolation 500（2026-09-29 live run2/3 实锤）。
+      key = { inspection_object_code: object_code, inspection_parameter_code: parameter_code }
+      entry = InspectionCalculationMethod.find_by(key) ||
+              InspectionCalculationMethod.new(key)
+      entry.assign_attributes(create_attrs(body, object_code, parameter_code, now))
+      entry.save!
       dto(entry)
     end
 

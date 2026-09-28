@@ -32,8 +32,12 @@ module ReportNames
       raise ArgumentError, 'code and name are required' if body['code'].nil? || body['name'].nil?
 
       now = ApplicationRecord.now_iso
-      entry = InspectionReportName.create!(
-        code: body['code'],
+      # springboot repo.save = JPA merge（同 PK 覆盖整行，含 created_at）——
+      # 共库四方对拍下先建方已占 code，裸 insert 会 UniqueViolation 500
+      # （2026-09-29 live run2/3 实锤）。
+      entry = InspectionReportName.find_by(code: body['code']) ||
+              InspectionReportName.new(code: body['code'])
+      entry.assign_attributes(
         name: body['name'],
         full_name: body['fullName'],
         template_path: body['templatePath'],
@@ -44,6 +48,7 @@ module ReportNames
         created_at: now,
         updated_at: now
       )
+      entry.save!
       dto(entry)
     end
 

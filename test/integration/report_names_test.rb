@@ -172,6 +172,25 @@ class ReportNamesTest < ActionDispatch::IntegrationTest
 
   private
 
+  test 'M06.F07 create 重复 code = merge 覆盖（springboot save=merge 语义）' do
+    # 共库四方对拍契约：nextjs/springboot 先建的行，rails 再 create 同 code 必须
+    # 覆盖而非 UniqueViolation 500（2026-09-29 live run2/3 实锤）。
+    code = uniq_code('ct-rn')
+    create_rn(code, "v1-#{code}")
+
+    post '/api/report-names',
+         params: { code: code, name: "v2-#{code}", sortOrder: 7 },
+         headers: auth_header, as: :json
+
+    assert_response :success
+    body = json(response)
+    assert_equal "v2-#{code}", body['name']
+    assert_equal 7, body['sortOrder']
+
+    get "/api/report-names/#{code}", headers: auth_header
+    assert_equal "v2-#{code}", json(response)['name']
+  end
+
   def create_rn(code, name = "rn #{code}")
     ReportNames::InspectionReportNameService.new.create(
       'code' => code, 'name' => name

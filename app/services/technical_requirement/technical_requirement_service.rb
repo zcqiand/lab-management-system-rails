@@ -26,7 +26,16 @@ module TechnicalRequirement
     def create(body, tenant_id)
       require_keys!(body)
       now = ApplicationRecord.now_iso
-      entry = InspectionTechnicalRequirement.create!(create_attrs(body, tenant_id, now))
+      # springboot repo.save = JPA merge（同 PK 覆盖整行）——共库四方对拍下
+      # 裸 insert 会 UniqueViolation 500（2026-09-29 live run2/3 实锤）。
+      key = { tenant_id: tenant_id,
+              inspection_object_code: body['inspectionObjectCode'],
+              inspection_parameter_code: body['inspectionParameterCode'],
+              judgment_standard_code: body['judgmentStandardCode'] }
+      entry = InspectionTechnicalRequirement.find_by(key) ||
+              InspectionTechnicalRequirement.new(key)
+      entry.assign_attributes(create_attrs(body, tenant_id, now))
+      entry.save!
       dto(entry)
     end
 

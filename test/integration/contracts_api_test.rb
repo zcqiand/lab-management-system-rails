@@ -14,6 +14,19 @@ class ContractsApiTest < ActionDispatch::IntegrationTest
     assert_equal 'INVALID_CREDENTIALS', JSON.parse(@response.body)['code']
   end
 
+  test '无 tenant_id claim 的 token → 兜底 directory 默认租户 TENANT-001（非 saas GUID）' do
+    # 家族镜像：springboot currentTenantIdOrDefaultStatic 兜底 directory.defaultTenant()
+    # （TENANTS[0] = TENANT-001）。2026-09-29 live 实锤：rails 误兜 LAB_SAAS_DEFAULT_TENANT_ID
+    # （saas 服务账号域的 GUID），create 回显 tenantId 与 nextjs/springboot 分叉。
+    token = LabAuth::TokenService.new.issue_access('tester', nil)
+    post '/api/contracts', params: contract_payload.to_json,
+                           headers: { 'Authorization' => "Bearer #{token}",
+                                      'Content-Type' => 'application/json' }
+
+    assert_response :success
+    assert_equal 'TENANT-001', parsed['tenantId']
+  end
+
   test 'CRUD 全链：create 回显 camelCase + id C- 前缀；list envelope page=1/pageSize=20' do
     payload = contract_payload
     api_post('/api/contracts', payload)

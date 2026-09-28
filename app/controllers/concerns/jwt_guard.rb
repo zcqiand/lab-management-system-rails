@@ -32,13 +32,15 @@ module JwtGuard
     current_claims['sub']
   end
 
-  # 家族约定：claim tenant_id 缺省回退 directory 默认租户
-  # （lab-springboot InspectionCatalogController.currentTenantIdOrDefaultStatic 镜像）
+  # 家族约定：claim tenant_id 缺省回退 directory 默认租户 TENANTS[0]（TENANT-001）
+  # （lab-springboot InspectionCatalogController.currentTenantIdOrDefaultStatic 镜像）。
+  # 2026-09-29 live 实锤：误兜 LAB_SAAS_DEFAULT_TENANT_ID（saas 服务账号域 GUID），
+  # create 回显 tenantId 与 nextjs/springboot 分叉 —— 业务租户域与 saas 域分离。
   def current_tenant_id
     claim = current_claims['tenant_id']
     return claim unless claim.blank?
 
-    ENV.fetch('LAB_SAAS_DEFAULT_TENANT_ID')
+    Auth::UserDirectory.new.default_tenant.tenant_id
   end
 
   def lab_token_service
