@@ -36,3 +36,9 @@ Naming/MethodParameterName:
 Metrics/BlockLength:
   Exclude:
     - "config/routes.rb"
+
+# lab-springboot AuthService（492 行）与各 ct 测试类的 Ruby 镜像：移植密度是义务不是坏味道。
+Metrics/ClassLength:
+  Exclude:
+    - "app/services/auth/auth_service.rb"
+    - "test/integration/**/*"

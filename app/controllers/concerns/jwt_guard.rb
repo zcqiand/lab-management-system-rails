@@ -33,7 +33,7 @@ module JwtGuard
   end
 
   # 家族约定：claim tenant_id 缺省回退 directory 默认租户
-  #（lab-springboot InspectionCatalogController.currentTenantIdOrDefaultStatic 镜像）
+  # （lab-springboot InspectionCatalogController.currentTenantIdOrDefaultStatic 镜像）
   def current_tenant_id
     claim = current_claims['tenant_id']
     return claim unless claim.blank?

@@ -41,6 +41,21 @@ class ApplicationController < ActionController::API
     render_error(:bad_request, 'BAD_REQUEST', 'malformed request body')
   end
 
+  # lab 认证域特有映射（lab-springboot GlobalExceptionHandler 镜像）：
+  # MenusUnavailable→503 / Saas InvalidGrant→400 INVALID_GRANT（code 重放/过期）
+  # / UpstreamUnavailable→502 SAAS_UPSTREAM_ERROR（UnauthorizedClient 已在 service 转 401）
+  rescue_from Auth::MenusUnavailable do |e|
+    render_error(:service_unavailable, 'MENUS_UNAVAILABLE', e.message)
+  end
+
+  rescue_from Auth::SaasAuthClient::InvalidGrant do |e|
+    render_error(:bad_request, 'INVALID_GRANT', e.message)
+  end
+
+  rescue_from Auth::SaasAuthClient::UpstreamUnavailable do |e|
+    render_error(:bad_gateway, 'SAAS_UPSTREAM_ERROR', e.message)
+  end
+
   # JSON.parse 失败 = 请求体不可解析（镜像 HttpMessageNotReadableException → 400）
   rescue_from ActionDispatch::Http::Parameters::ParseError do
     render_error(:bad_request, 'BAD_REQUEST', 'malformed request body')

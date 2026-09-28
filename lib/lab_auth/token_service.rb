@@ -51,7 +51,7 @@ module LabAuth
         algorithm: 'HS256', iss: @issuer,
         verify_expiration: true, verify_iss: true
       )
-      raise JWT::InvalidPayloadError, "unexpected typ: #{decoded['typ']}" unless decoded['typ'] == typ
+      raise JWT::DecodeError, "unexpected typ: #{decoded['typ']}" unless decoded['typ'] == typ
 
       decoded
     end
