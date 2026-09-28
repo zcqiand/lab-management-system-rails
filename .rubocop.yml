@@ -1,0 +1,38 @@
+AllCops:
+  TargetRubyVersion: 3.4
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    # API 面只认生成物（suite-hard-rules §4）：生成目录禁手改也免检
+    - "lib/generated/**/*"
+    - "bin/*"
+    - "vendor/**/*"
+    - "node_modules/**/*"
+
+# L1 = rubocop --only Layout（格式）；L2 = rubocop 全量（静态检查）。
+# 这里只放仓库级调优，压制噪音；禁令靠 stack_rules.forbid 与评审，不靠关 cop。
+Metrics/MethodLength:
+  Max: 20
+Metrics/AbcSize:
+  Max: 25
+Style/Documentation:
+  Enabled: false
+
+# 家族统一 LF（产物确定性 hideGenerationTimestamp 教训；git 工作树跨平台）
+Layout/EndOfLine:
+  EnforcedStyle: lf
+
+# action 名 = operationId 后半段（家族契约 route_parity_test 对账），
+# Clients_getClient -> get_client 是契约面不是命名失误 —— reader 前缀禁令不适用。
+Naming/AccessorMethodName:
+  Exclude:
+    - "app/controllers/**/*"
+
+# Ruby 惯用短块参数（|c| |m| |r|）；DTO 构建器逐字段映射的密度是镜像义务的一部分。
+Naming/MethodParameterName:
+  Enabled: false
+
+# routes.rb 的 47 条显式路由 = manifest 1:1 镜像，整体是一个 DSL 块。
+Metrics/BlockLength:
+  Exclude:
+    - "config/routes.rb"
