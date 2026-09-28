@@ -266,7 +266,4 @@ module Auth
       { tenant_id: t.tenant_id, code: t.code, name: t.name, role_ids: t.role_ids }
     end
   end
-
-  # 菜单快照不可用 → 503 MENUS_UNAVAILABLE（GlobalExceptionHandler 镜像）
-  class MenusUnavailable < StandardError; end
 end
