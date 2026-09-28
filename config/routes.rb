@@ -25,9 +25,12 @@ Rails.application.routes.draw do
     # tag: calculation-methods（复合主键 objectCode × parameterCode）
     get    '/calculation-methods', to: 'calculation_methods#list_calculation_methods'
     post   '/calculation-methods', to: 'calculation_methods#create_calculation_method'
-    get    '/calculation-methods/:inspection_object_code/:inspection_parameter_code', to: 'calculation_methods#get_calculation_method'
-    put    '/calculation-methods/:inspection_object_code/:inspection_parameter_code', to: 'calculation_methods#update_calculation_method'
-    delete '/calculation-methods/:inspection_object_code/:inspection_parameter_code', to: 'calculation_methods#delete_calculation_method'
+    get    '/calculation-methods/:inspection_object_code/:inspection_parameter_code',
+           to: 'calculation_methods#get_calculation_method'
+    put '/calculation-methods/:inspection_object_code/:inspection_parameter_code',
+        to: 'calculation_methods#update_calculation_method'
+    delete '/calculation-methods/:inspection_object_code/:inspection_parameter_code',
+           to: 'calculation_methods#delete_calculation_method'
 
     # tag: catalog（字典四件套 brands/models/specs/grades，:code 是业务码）
     get    '/catalog/brands', to: 'catalog#list_brands'
@@ -141,9 +144,12 @@ Rails.application.routes.draw do
     # tag: technical-requirements（复合主键 objectCode × parameterCode × standardCode）
     get    '/technical-requirements', to: 'technical_requirements#list_technical_requirements'
     post   '/technical-requirements', to: 'technical_requirements#create_technical_requirement'
-    get    '/technical-requirements/:inspection_object_code/:inspection_parameter_code/:judgment_standard_code', to: 'technical_requirements#get_technical_requirement'
-    put    '/technical-requirements/:inspection_object_code/:inspection_parameter_code/:judgment_standard_code', to: 'technical_requirements#update_technical_requirement'
-    delete '/technical-requirements/:inspection_object_code/:inspection_parameter_code/:judgment_standard_code', to: 'technical_requirements#delete_technical_requirement'
+    get    '/technical-requirements/:inspection_object_code/:inspection_parameter_code/:judgment_standard_code',
+           to: 'technical_requirements#get_technical_requirement'
+    put '/technical-requirements/:inspection_object_code/:inspection_parameter_code/:judgment_standard_code',
+        to: 'technical_requirements#update_technical_requirement'
+    delete '/technical-requirements/:inspection_object_code/:inspection_parameter_code/:judgment_standard_code',
+           to: 'technical_requirements#delete_technical_requirement'
 
     # tag: test-records
     get    '/test-records',     to: 'test_records#list_test_records'

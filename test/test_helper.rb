@@ -18,7 +18,10 @@ Minitest.extensions << 'trace_map'
 module ActiveSupport
   class TestCase
     # TRACE_MAP=1 时单 worker：多进程会竞写 .state/trace.json（profiles/rails.toml 注释）。
-    parallelize(workers: (ENV['TRACE_MAP'] == '1' ? 1 : :number_of_processors), with: :threads)
+    # 恒单 worker：>50 tests 后线程并行在 Windows+远程PG 下事务夹具竞连接
+    # （PG::UnableToSend: PQsendQuery another command is already in progress，2026-09-29 实锤）；
+    # 套件规模小（~170 runs），单 worker 分钟级，不值得为并行去治远程库连接模型。
+    parallelize(workers: 1, with: :threads)
 
     # 家族禁 fixtures/*.yml：schema SSOT = shared 仓 drizzle，种子归 shared seed-db.mjs 独占。
     # 测试数据在各自测试内显式造（或后续接 factory），不靠 fixtures 隐式装载。

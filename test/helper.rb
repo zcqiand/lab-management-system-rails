@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "minitest/autorun"
+require 'minitest/autorun'
 
-require_relative "harness/fn"
+require_relative 'harness/fn'
 
 # trace 适配器门控 —— 与 java-spring 的 -Dharness.trace=true / python 的
 # TRACE_MAP=1 同一约定：只有 suite 的 trace_cmd 会带 TRACE_MAP=1 进来，
@@ -13,9 +13,9 @@ require_relative "harness/fn"
 # Rails 仓 init 后：把 harness 的 require_relative + 本注册块 splice 进
 # rails 生成的 test/test_helper.rb 尾部（环境加载之后）。
 Minitest.define_singleton_method(:plugin_trace_map_init) do |*_options|
-  next unless ENV["TRACE_MAP"] == "1"
+  next unless ENV['TRACE_MAP'] == '1'
 
-  require_relative "harness/trace_reporter"
+  require_relative 'harness/trace_reporter'
   Minitest.reporter << Harness::TraceReporter.new
 end
-Minitest.extensions << "trace_map"
+Minitest.extensions << 'trace_map'
