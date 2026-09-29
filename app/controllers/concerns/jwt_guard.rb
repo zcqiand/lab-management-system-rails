@@ -2,7 +2,8 @@
 
 # lab 家族鉴权门（lab-springboot NimbusLabJwtDecoderFactory + SecurityConfig 镜像）：
 # 全业务端点 Bearer JWT（typ=access，iss=JWT_ISSUER）；匿名放行面只有
-# auth login/native-login/refresh/sso/** + /health + /api/_frontend-bind/snapshot。
+# auth login/native-login/refresh/sso/** + /health。/api/_frontend-bind/snapshot
+# 不在放行面（springboot Security 链先于 404 handler → 匿名 401，2026-09-29 校正）。
 # 缺/坏/过期 token -> 401（INVALID_CREDENTIALS）—— 身份字段缺失禁兜底（ADR-0019）。
 module JwtGuard
   extend ActiveSupport::Concern

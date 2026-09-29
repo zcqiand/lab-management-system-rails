@@ -33,6 +33,24 @@ class CatalogTest < ActionDispatch::IntegrationTest
   end
 
   # 401 用例放在两个 KINDS.each 之间，防止 Style/CombinableLoops 合并建议
+  test 'M04 create 重复 code 撞唯一索引 -> 400 BAD_REQUEST（PG 23505，非 500）' do
+    seed = seed_dictionary!
+    code = uniq_code('ct-dup')
+
+    post '/api/catalog/brands',
+         params: { code: code, name: "first #{code}", inspectionObjectCode: seed[:object].code },
+         headers: auth_header, as: :json
+    assert_response :success
+
+    # 家族真源：lab-springboot GlobalExceptionHandler DataIntegrityViolationException → 400
+    # （2026-09-29 review Important：RecordNotUnique 未 rescue 曾 500）
+    post '/api/catalog/brands',
+         params: { code: code, name: "dup #{code}", inspectionObjectCode: seed[:object].code },
+         headers: auth_header, as: :json
+    assert_response :bad_request
+    assert_equal 'BAD_REQUEST', json(response)['code']
+  end
+
   test 'M04 无 token -> 401' do
     get '/api/catalog/brands'
     assert_response :unauthorized
