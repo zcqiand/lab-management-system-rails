@@ -24,6 +24,17 @@
       ],
       "fix": "逐条修复 rubocop。禁止 disable 掩盖，除非同行注释给出理由。"
     },
+    "L2.security": {
+      "name": "安全扫描",
+      "cmd": [
+        "bundle",
+        "exec",
+        "brakeman",
+        "-q",
+        "-z"
+      ],
+      "fix": "逐条修复 brakeman 警告。禁止 ignore 掩盖，除非同行注释给出理由。"
+    },
     "L4": {
       "name": "测试",
       "cmd": [
