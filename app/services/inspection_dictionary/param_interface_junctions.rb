@@ -4,6 +4,7 @@ module InspectionDictionary
   # M10 parameter ↔ param-interface junction（config jsonb）——
   # 自 InspectionJunctionService 拆出。
   module ParamInterfaceJunctions
+    # @impl M06.F08.I06 (book anchor xr-know-012)
     def link_param_interface(body)
       require_non_blank!(body['inspectionParameterCode'], body['paramInterfaceCode'])
       upsert!(InspectionParamInterfaceLink,

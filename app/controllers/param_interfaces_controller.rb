@@ -5,6 +5,7 @@
 class ParamInterfacesController < ApplicationController
   include JwtGuard
 
+  # @impl M06.F08.I01 (book anchor xr-know-012)
   def list_param_interfaces
     items = service.list(params[:keyword])
     page = params.fetch(:page, 1).to_i
@@ -15,20 +16,24 @@ class ParamInterfacesController < ApplicationController
   # 路由表是 manifest 1:1 镜像（禁改序）：GET/DELETE /param-interfaces/links 被
   # 先声明的 `/:code` 抢匹配 —— 静态段 /links 在 controller 侧转发到 links action
   # （镜像 springboot 字面路径优先于 @PathVariable 模板的语义）。
+  # @impl M06.F08.I02 (book anchor xr-know-012)
   def get_param_interface
     return list_param_interface_links if params[:code] == 'links'
 
     render_camel(service.get(params[:code]))
   end
 
+  # @impl M06.F08.I03 (book anchor xr-know-012)
   def create_param_interface
     render_camel(service.create(request.request_parameters))
   end
 
+  # @impl M06.F08.I04 (book anchor xr-know-012)
   def update_param_interface
     render_camel(service.update(params[:code], request.request_parameters))
   end
 
+  # @impl M06.F08.I05 (book anchor xr-know-012)
   def delete_param_interface
     return unlink_param_interface if params[:code] == 'links'
 

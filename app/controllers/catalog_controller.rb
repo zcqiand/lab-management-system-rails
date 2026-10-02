@@ -26,35 +26,43 @@ class CatalogController < ApplicationController
   end
 
   # === Model (M04.F06) ===
+  # @impl M04.F06.I01 (book anchor xr-know-012)
   def list_models
     render_dict_list(:model)
   end
 
+  # @impl M04.F06.I02 (book anchor xr-know-012)
   def create_model
     render_create(:model)
   end
 
+  # @impl M04.F06.I03 (book anchor xr-know-012)
   def update_model
     render_update(:model)
   end
 
+  # @impl M04.F06.I04 (book anchor xr-know-012)
   def delete_model
     render_delete(:model)
   end
 
   # === Spec (M04.F07) ===
+  # @impl M04.F07.I01 (book anchor xr-know-012)
   def list_specs
     render_dict_list(:spec)
   end
 
+  # @impl M04.F07.I02 (book anchor xr-know-012)
   def create_spec
     render_create(:spec)
   end
 
+  # @impl M04.F07.I03 (book anchor xr-know-012)
   def update_spec
     render_update(:spec)
   end
 
+  # @impl M04.F07.I04 (book anchor xr-know-012)
   def delete_spec
     render_delete(:spec)
   end

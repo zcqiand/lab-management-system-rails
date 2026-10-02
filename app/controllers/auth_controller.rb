@@ -8,6 +8,7 @@ class AuthController < ApplicationController
 
   skip_before_action :authenticate_jwt!, only: %i[login native_login refresh sso_authorize sso_callback]
 
+  # @impl M00.F01.I01 (book anchor xr-know-012)
   def get_current_user
     render_camel(service.me(current_claims))
   end
@@ -20,6 +21,7 @@ class AuthController < ApplicationController
     render_camel(service.permissions)
   end
 
+  # @impl M01.F05.I01 (book anchor xr-know-012)
   def login
     render_camel(service.login(body))
   end
@@ -29,6 +31,7 @@ class AuthController < ApplicationController
     render_camel(service.login(body))
   end
 
+  # @impl M01.F05.I05 (book anchor xr-know-012)
   def logout
     service.logout(body)
     head :no_content
@@ -50,6 +53,7 @@ class AuthController < ApplicationController
     render_camel(service.sso_callback(body))
   end
 
+  # @impl M00.F02.I01 (book anchor xr-know-012)
   def switch_tenant
     render_camel(service.switch_tenant(current_claims, body))
   end

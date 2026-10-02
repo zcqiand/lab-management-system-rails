@@ -9,18 +9,22 @@ class InspectionDictionaryController < ApplicationController
 
   # === specialties ===
 
+  # @impl M06.F01.I01 (book anchor xr-know-012)
   def list_specialties
     render_dict_envelope(service.list_specialties(params[:keyword]))
   end
 
+  # @impl M06.F01.I02 (book anchor xr-know-012)
   def create_specialty
     render_camel(service.create_specialty(request.request_parameters))
   end
 
+  # @impl M06.F01.I03 (book anchor xr-know-012)
   def update_specialty
     render_camel(service.update_specialty(params[:code], request.request_parameters))
   end
 
+  # @impl M06.F01.I04 (book anchor xr-know-012)
   def delete_specialty
     service.delete_specialty(params[:code])
     head :no_content
@@ -28,19 +32,23 @@ class InspectionDictionaryController < ApplicationController
 
   # === objects ===
 
+  # @impl M06.F02.I01 (book anchor xr-know-012)
   def list_objects
     render_dict_envelope(service.list_objects(params[:keyword],
                                               params[:inspectionSpecialtyCode]))
   end
 
+  # @impl M06.F02.I02 (book anchor xr-know-012)
   def create_object
     render_camel(service.create_object(request.request_parameters))
   end
 
+  # @impl M06.F02.I03 (book anchor xr-know-012)
   def update_object
     render_camel(service.update_object(params[:code], request.request_parameters))
   end
 
+  # @impl M06.F02.I04 (book anchor xr-know-012)
   def delete_object
     service.delete_object(params[:code])
     head :no_content
@@ -48,18 +56,22 @@ class InspectionDictionaryController < ApplicationController
 
   # === parameters ===
 
+  # @impl M06.F03.I01 (book anchor xr-know-012)
   def list_parameters
     render_dict_envelope(service.list_parameters(params[:keyword], params[:sourceType]))
   end
 
+  # @impl M06.F03.I02 (book anchor xr-know-012)
   def create_parameter
     render_camel(service.create_parameter(request.request_parameters))
   end
 
+  # @impl M06.F03.I03 (book anchor xr-know-012)
   def update_parameter
     render_camel(service.update_parameter(params[:code], request.request_parameters))
   end
 
+  # @impl M06.F03.I04 (book anchor xr-know-012)
   def delete_parameter
     service.delete_parameter(params[:code])
     head :no_content

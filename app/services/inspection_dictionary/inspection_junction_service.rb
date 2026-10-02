@@ -69,6 +69,7 @@ module InspectionDictionary
 
     # === object ↔ standard (role) ===
 
+    # @impl M06.F01.I05 (book anchor xr-know-012)
     def link_object_standard(body)
       require_non_blank!(body['inspectionObjectCode'], body['inspectionStandardCode'],
                          body['role'])
@@ -79,12 +80,14 @@ module InspectionDictionary
               { remark: body['remark'] })
     end
 
+    # @impl M06.F01.I06 (book anchor xr-know-012)
     def unlink_object_standard(object_code, standard_code, role)
       InspectionObjectStandard.find_by(
         inspection_object_code: object_code, inspection_standard_code: standard_code, role: role
       )&.destroy!
     end
 
+    # @impl M06.F01.I07 (book anchor xr-know-012)
     def list_object_standard_links(object_code, role)
       scope = filter(InspectionObjectStandard.all, inspection_object_code: object_code)
       scope = scope.where(role: role) if present?(role)
@@ -97,6 +100,7 @@ module InspectionDictionary
 
     # === standard ↔ parameter ===
 
+    # @impl M06.F03.I05 (book anchor xr-know-012)
     def link_standard_parameter(body)
       require_non_blank!(body['inspectionStandardCode'], body['inspectionParameterCode'])
       upsert!(InspectionStandardParameter,
@@ -104,6 +108,7 @@ module InspectionDictionary
                 inspection_parameter_code: body['inspectionParameterCode'] }, {})
     end
 
+    # @impl M06.F03.I06 (book anchor xr-know-012)
     def unlink_standard_parameter(body)
       InspectionStandardParameter.find_by(
         inspection_standard_code: body['inspectionStandardCode'],
@@ -111,6 +116,7 @@ module InspectionDictionary
       )&.destroy!
     end
 
+    # @impl M06.F03.I08 (book anchor xr-know-012)
     def list_standard_parameter_links(standard_code, parameter_code)
       scope = filter(InspectionStandardParameter.all, inspection_standard_code: standard_code)
       scope = filter(scope, inspection_parameter_code: parameter_code)

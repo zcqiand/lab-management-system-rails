@@ -25,6 +25,13 @@ module Receipts
       @receipts = receipt_service
     end
 
+    # @impl M03.F01.I08 (book anchor xr-know-012)
+    # @impl M03.F02.I05 (book anchor xr-know-012)
+    # @impl M03.F03.I12 (book anchor xr-know-012)
+    # @impl M03.F05.I07 (book anchor xr-know-012)
+    # @impl M03.F06.I05 (book anchor xr-know-012)
+    # @impl M03.F07.I05 (book anchor xr-know-012)
+    # @impl M03.F08.I05 (book anchor xr-know-012)
     def act(stage, body)
       require_operator!(body)
       operator = body['operator']
