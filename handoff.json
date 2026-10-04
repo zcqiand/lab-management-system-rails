@@ -1,0 +1,1371 @@
+{
+  "_schema": "code-suite-handoff v1",
+  "_note": "写书的事实底，非逐字引用源。book 引用该 tag 的终态文件(带 source=)；此清单供作者对账建造顺序。",
+  "project": "lab-management-system-rails",
+  "tag": "v0.1.5-20261004",
+  "stack": "rails",
+  "gate_proof": {
+    "tag": "v0.1.5-20261004",
+    "checked_at": "2026-10-03T17:56:16+00:00",
+    "verified": true,
+    "all_green": true,
+    "method": "gate.py --all",
+    "gate_command": "D:\\qiand-life\\1-projects\\xr-code-suite\\scripts\\gate.py -p lab-management-system-rails"
+  },
+  "function_tree": [
+    {
+      "fn_id": "M00.F01.I01",
+      "name": "当前会话",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M00.F02.I01",
+      "name": "选租户换发",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M01.F04.I01",
+      "name": "动态菜单",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M01.F04.I02",
+      "name": "权限集",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M01.F04.I03",
+      "name": "路由守卫（未登录/无权限拦截）",
+      "type": "标签页",
+      "status": "开发中"
+    },
+    {
+      "fn_id": "M01.F04.I04",
+      "name": "动态菜单（lab 侧边栏）",
+      "type": "标签页",
+      "status": "开发中"
+    },
+    {
+      "fn_id": "M01.F05.I01",
+      "name": "密码登录",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M01.F05.I02",
+      "name": "SSO 跳转",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M01.F05.I03",
+      "name": "SSO 回调",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M01.F05.I04",
+      "name": "刷新 token",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M01.F05.I05",
+      "name": "登出",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M02.F01.I01",
+      "name": "合同列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M02.F01.I02",
+      "name": "合同详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M02.F01.I03",
+      "name": "创建合同",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M02.F01.I04",
+      "name": "更新合同",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M02.F01.I05",
+      "name": "删除合同",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F01.I01",
+      "name": "接样单列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F01.I02",
+      "name": "接样单详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F01.I03",
+      "name": "创建接样单",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F01.I04",
+      "name": "更新接样单",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F01.I05",
+      "name": "删除接样单",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F01.I06",
+      "name": "接样单流程历史",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F01.I07",
+      "name": "接样单 ext 字段补录",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F01.I08",
+      "name": "接样-提交",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F01.I09",
+      "name": "接样-退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F01.I10",
+      "name": "接样-撤回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F02.I01",
+      "name": "任务分配",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F02.I02",
+      "name": "任务编辑（客户端视角 anchor）",
+      "type": "按钮",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F02.I03",
+      "name": "任务取消（清空分配）",
+      "type": "按钮",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F02.I05",
+      "name": "任务分配-提交",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F02.I06",
+      "name": "任务分配-退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F02.I07",
+      "name": "任务分配-撤回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F03.I01",
+      "name": "样品列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I02",
+      "name": "样品详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I03",
+      "name": "创建样品",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I04",
+      "name": "更新样品",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I05",
+      "name": "删除样品",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I06",
+      "name": "检测记录列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I07",
+      "name": "检测记录详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I08",
+      "name": "创建检测记录",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I09",
+      "name": "更新检测记录",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I10",
+      "name": "删除检测记录",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I11",
+      "name": "检测记录改判",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I12",
+      "name": "数据录入-提交",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F03.I13",
+      "name": "数据录入-退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F03.I14",
+      "name": "数据录入-撤回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F05.I01",
+      "name": "审核队列",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F05.I02",
+      "name": "报告审核-查看详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F05.I03",
+      "name": "报告审核-通过/退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F05.I05",
+      "name": "报告审核-批量提交",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F05.I06",
+      "name": "报告审核-批量退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F05.I07",
+      "name": "报告审核-提交",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F05.I08",
+      "name": "报告审核-退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F05.I09",
+      "name": "报告审核-撤回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F06.I01",
+      "name": "报告阶段审批推进",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F06.I02",
+      "name": "报告批准-查看详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F06.I03",
+      "name": "报告批准-批准/退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F06.I05",
+      "name": "报告批准-提交",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F06.I06",
+      "name": "报告批准-退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F06.I07",
+      "name": "报告批准-撤回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F07.I01",
+      "name": "报告发放队列",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F07.I02",
+      "name": "报告发放-查看详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F07.I03",
+      "name": "报告发放-发放/退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F07.I05",
+      "name": "报告发放-提交",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F07.I06",
+      "name": "报告发放-退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F07.I07",
+      "name": "报告发放-撤回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F08.I01",
+      "name": "报告归档队列",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F08.I02",
+      "name": "报告归档-查看详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F08.I03",
+      "name": "报告归档-归档/退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F08.I05",
+      "name": "报告归档-提交",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M03.F08.I06",
+      "name": "报告归档-退回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F08.I07",
+      "name": "报告归档-撤回",
+      "type": "接口",
+      "status": "已废弃"
+    },
+    {
+      "fn_id": "M03.F09.I01",
+      "name": "接样单详情聚合",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F06.I01",
+      "name": "型号列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F06.I02",
+      "name": "创建型号",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F06.I03",
+      "name": "更新型号",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F06.I04",
+      "name": "删除型号",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F07.I01",
+      "name": "规格列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F07.I02",
+      "name": "创建规格",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F07.I03",
+      "name": "更新规格",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F07.I04",
+      "name": "删除规格",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F08.I01",
+      "name": "等级列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F08.I02",
+      "name": "创建等级",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F08.I03",
+      "name": "更新等级",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F08.I04",
+      "name": "删除等级",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F09.I01",
+      "name": "牌号列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F09.I02",
+      "name": "创建牌号",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F09.I03",
+      "name": "更新牌号",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M04.F09.I04",
+      "name": "删除牌号",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M05.F01.I01",
+      "name": "报告汇总",
+      "type": "查询",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M05.F01.I03",
+      "name": "核心指标卡",
+      "type": "查询",
+      "status": "规划"
+    },
+    {
+      "fn_id": "M05.F01.I04",
+      "name": "任务状态漏斗",
+      "type": "报表",
+      "status": "规划"
+    },
+    {
+      "fn_id": "M05.F01.I05",
+      "name": "见证取样跟踪",
+      "type": "报表",
+      "status": "规划"
+    },
+    {
+      "fn_id": "M05.F01.I06",
+      "name": "仪表盘统计基础端点",
+      "type": "查询",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F01.I01",
+      "name": "专项列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F01.I02",
+      "name": "创建专项",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F01.I03",
+      "name": "更新专项",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F01.I04",
+      "name": "删除专项",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F01.I05",
+      "name": "项目↔标准 link",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F01.I06",
+      "name": "项目↔标准 unlink",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F01.I07",
+      "name": "项目↔标准 列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F02.I01",
+      "name": "项目列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F02.I02",
+      "name": "创建项目",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F02.I03",
+      "name": "更新项目",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F02.I04",
+      "name": "删除项目",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F02.I05",
+      "name": "专项↔项目 link",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F02.I06",
+      "name": "专项↔项目 unlink",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F02.I07",
+      "name": "项目↔参数 link",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F02.I08",
+      "name": "项目↔参数 unlink",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F02.I09",
+      "name": "专项↔项目 列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F02.I10",
+      "name": "项目↔参数 列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F03.I01",
+      "name": "参数列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F03.I02",
+      "name": "创建参数",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F03.I03",
+      "name": "更新参数",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F03.I04",
+      "name": "删除参数",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F03.I05",
+      "name": "标准↔参数 link",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F03.I06",
+      "name": "标准↔参数 unlink",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F03.I07",
+      "name": "参数↔界面 unlink",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F03.I08",
+      "name": "标准↔参数 列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F04.I01",
+      "name": "标准列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F04.I02",
+      "name": "创建标准",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F04.I03",
+      "name": "更新标准",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F04.I04",
+      "name": "删除标准",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F04.I05",
+      "name": "项目↔报告名称 unlink",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F04.I06",
+      "name": "报告名称↔参数 unlink",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F04.I07",
+      "name": "报告名称↔标准 unlink",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F05.I01",
+      "name": "计算方法列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F05.I02",
+      "name": "计算方法详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F05.I03",
+      "name": "创建计算方法",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F05.I04",
+      "name": "更新计算方法",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F05.I05",
+      "name": "删除计算方法",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F06.I01",
+      "name": "技术要求列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F06.I02",
+      "name": "技术要求详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F06.I03",
+      "name": "创建技术要求",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F06.I04",
+      "name": "更新技术要求",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F06.I05",
+      "name": "删除技术要求",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F07.I01",
+      "name": "报告名称列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F07.I02",
+      "name": "报告名称详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F07.I03",
+      "name": "创建报告名称",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F07.I04",
+      "name": "更新报告名称",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F07.I05",
+      "name": "删除报告名称",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F07.I06",
+      "name": "项目↔报告名称 link",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F07.I07",
+      "name": "报告名称↔标准 link",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F07.I08",
+      "name": "报告名称↔参数 link",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F08.I01",
+      "name": "参数界面列表",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F08.I02",
+      "name": "参数界面详情",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F08.I03",
+      "name": "创建参数界面",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F08.I04",
+      "name": "更新参数界面",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F08.I05",
+      "name": "删除参数界面",
+      "type": "接口",
+      "status": "已上线"
+    },
+    {
+      "fn_id": "M06.F08.I06",
+      "name": "参数↔界面 link",
+      "type": "接口",
+      "status": "已上线"
+    }
+  ],
+  "trace": [],
+  "source_index": [
+    {
+      "fn_id": "M00.F01.I01",
+      "source_paths": [
+        "app\\controllers\\auth_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M00.F02.I01",
+      "source_paths": [
+        "app\\controllers\\auth_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M01.F05.I01",
+      "source_paths": [
+        "app\\controllers\\auth_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M01.F05.I05",
+      "source_paths": [
+        "app\\controllers\\auth_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M02.F01.I01",
+      "source_paths": [
+        "app\\controllers\\contracts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M02.F01.I02",
+      "source_paths": [
+        "app\\controllers\\contracts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M02.F01.I03",
+      "source_paths": [
+        "app\\controllers\\contracts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M02.F01.I04",
+      "source_paths": [
+        "app\\controllers\\contracts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M02.F01.I05",
+      "source_paths": [
+        "app\\controllers\\contracts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F01.I01",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F01.I02",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F01.I03",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F01.I04",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F01.I05",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F01.I06",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F01.I07",
+      "source_paths": [
+        "app\\controllers\\samples_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F01.I08",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb",
+        "app\\services\\receipts\\report_flow_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F02.I01",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F02.I05",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb",
+        "app\\services\\receipts\\report_flow_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I01",
+      "source_paths": [
+        "app\\controllers\\samples_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I02",
+      "source_paths": [
+        "app\\controllers\\samples_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I03",
+      "source_paths": [
+        "app\\controllers\\samples_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I04",
+      "source_paths": [
+        "app\\controllers\\samples_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I05",
+      "source_paths": [
+        "app\\controllers\\samples_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I06",
+      "source_paths": [
+        "app\\controllers\\test_records_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I07",
+      "source_paths": [
+        "app\\controllers\\test_records_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I08",
+      "source_paths": [
+        "app\\controllers\\test_records_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I09",
+      "source_paths": [
+        "app\\controllers\\test_records_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I10",
+      "source_paths": [
+        "app\\controllers\\test_records_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I11",
+      "source_paths": [
+        "app\\controllers\\test_records_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F03.I12",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb",
+        "app\\services\\receipts\\report_flow_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F05.I02",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F05.I07",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb",
+        "app\\services\\receipts\\report_flow_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F06.I02",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F06.I05",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb",
+        "app\\services\\receipts\\report_flow_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F07.I02",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F07.I05",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb",
+        "app\\services\\receipts\\report_flow_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F08.I02",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F08.I05",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb",
+        "app\\services\\receipts\\report_flow_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M03.F09.I01",
+      "source_paths": [
+        "app\\controllers\\receipts_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M04.F06.I01",
+      "source_paths": [
+        "app\\controllers\\catalog_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M04.F06.I02",
+      "source_paths": [
+        "app\\controllers\\catalog_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M04.F06.I03",
+      "source_paths": [
+        "app\\controllers\\catalog_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M04.F06.I04",
+      "source_paths": [
+        "app\\controllers\\catalog_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M04.F07.I01",
+      "source_paths": [
+        "app\\controllers\\catalog_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M04.F07.I02",
+      "source_paths": [
+        "app\\controllers\\catalog_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M04.F07.I03",
+      "source_paths": [
+        "app\\controllers\\catalog_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M04.F07.I04",
+      "source_paths": [
+        "app\\controllers\\catalog_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M05.F01.I01",
+      "source_paths": [
+        "app\\controllers\\summary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M05.F01.I06",
+      "source_paths": [
+        "app\\controllers\\summary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F01.I01",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F01.I02",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F01.I03",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F01.I04",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F01.I05",
+      "source_paths": [
+        "app\\services\\inspection_dictionary\\inspection_junction_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F01.I06",
+      "source_paths": [
+        "app\\services\\inspection_dictionary\\inspection_junction_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F01.I07",
+      "source_paths": [
+        "app\\services\\inspection_dictionary\\inspection_junction_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F02.I01",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F02.I02",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F02.I03",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F02.I04",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F03.I01",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F03.I02",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F03.I03",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F03.I04",
+      "source_paths": [
+        "app\\controllers\\inspection_dictionary_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F03.I05",
+      "source_paths": [
+        "app\\services\\inspection_dictionary\\inspection_junction_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F03.I06",
+      "source_paths": [
+        "app\\services\\inspection_dictionary\\inspection_junction_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F03.I08",
+      "source_paths": [
+        "app\\services\\inspection_dictionary\\inspection_junction_service.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F08.I01",
+      "source_paths": [
+        "app\\controllers\\param_interfaces_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F08.I02",
+      "source_paths": [
+        "app\\controllers\\param_interfaces_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F08.I03",
+      "source_paths": [
+        "app\\controllers\\param_interfaces_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F08.I04",
+      "source_paths": [
+        "app\\controllers\\param_interfaces_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F08.I05",
+      "source_paths": [
+        "app\\controllers\\param_interfaces_controller.rb"
+      ]
+    },
+    {
+      "fn_id": "M06.F08.I06",
+      "source_paths": [
+        "app\\services\\inspection_dictionary\\param_interface_junctions.rb"
+      ]
+    }
+  ]
+}
