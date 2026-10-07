@@ -8,6 +8,8 @@
 
 | 功能子项 ID | 页面/组件 | 接口 | 数据表 | 权限码 | 设计稿 | 状态 |
 |---|---|---|---|---|---|---|
+| M05.F01.I03 | Summary::SummaryService#dashboard_stats（today_test_count/qualified_rate_by_material/report_output_by_status 段） | GET /api/summary/stats | sample_receipts + inspection_report_names（码表预载 summary_name 关键词映射） | M05.F01.I03 | REQ-2026-022，镜像 springboot 同名行 | 开发中 |
+| M05.F01.I04 | Summary::SummaryService#dashboard_stats（funnel_by_stage 段） | GET /api/summary/stats | sample_receipts（flow_status + report_code 六段分桶） | M05.F01.I04 | REQ-2026-022，镜像 springboot 同名行 | 开发中 |
 | | | | | | | |
 
 ## 约定

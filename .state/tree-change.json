@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "approved": true,
+  "mirror": true,
+  "summary": "REQ-2026-022：M05.F01.I03 核心指标卡 + M05.F01.I04 任务状态漏斗 推进开发中（rails 服务端扩展段已在库 2026-09-29 09921f5，补集成测试 fn 锚 + 账面；镜像 aspnetcore/fastapi 已上线行，同 springboot REQ-2026-021 推进）",
+  "changes": [
+    {
+      "id": "M05.F01.I03",
+      "action": "变更",
+      "name": "核心指标卡",
+      "reason": "REQ-2026-022 T-1：随已批 REQ 推进开发中——Summary::SummaryService 扩展段（today_test_count/qualified_rate_by_material/report_output_by_status）已在库（2026-09-29 09921f5），本 REQ 补集成测试 fn 锚与账面推进"
+    },
+    {
+      "id": "M05.F01.I04",
+      "action": "变更",
+      "name": "任务状态漏斗",
+      "reason": "REQ-2026-022 T-1：随已批 REQ 推进开发中——funnel_by_stage 六段已在库（data_entry 按 report_code 分段，与 springboot 同款语义），本 REQ 补集成测试 fn 锚与账面推进"
+    }
+  ],
+  "sync_files": [
+    "docs/design/design-function-map.md",
+    "docs/requirements/README.md"
+  ],
+  "base_sha": "123699d1ef75b0ca"
+}

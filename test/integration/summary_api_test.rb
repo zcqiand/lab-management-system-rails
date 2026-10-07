@@ -98,6 +98,60 @@ class SummaryApiTest < ActionDispatch::IntegrationTest
     assert_equal 0, stats.dig('reportCountByStatus', 'issued')
   end
 
+  test 'M05.F01.I03 核心指标：今日试验数/报告产出/材料合格率走码表 summaryName' do
+    fn 'M05.F01.I03'
+    api_get('/api/summary/stats')
+    assert_response :success
+    before = parsed
+
+    # 一张单同时驱动四段：issuance + result=pass + report_code + created_at=今天
+    create_receipt_ar(@contract, @report_name.code, tenant_id,
+                      flow_status: 'issuance', result: 'pass', report_code: 'RP-T-9')
+
+    api_get('/api/summary/stats')
+    assert_response :success
+    after = parsed
+
+    assert_equal before['todayTestCount'] + 1, after['todayTestCount'],
+                 '新建单 created_at=今天 → 今日试验数 +1'
+    assert_equal before.dig('reportOutputByStatus', 'generated') + 1,
+                 after.dig('reportOutputByStatus', 'generated'), '有 report_code → 已生成 +1'
+    assert_equal before.dig('reportOutputByStatus', 'issued') + 1,
+                 after.dig('reportOutputByStatus', 'issued'), 'issuance → 已签发 +1'
+    assert_equal before.dig('qualifiedRateByMaterial', 'concrete', 'total') + 1,
+                 after.dig('qualifiedRateByMaterial', 'concrete', 'total'),
+                 '码表 summaryName 含「混凝土」→ concrete 桶 total +1'
+    assert_equal before.dig('qualifiedRateByMaterial', 'concrete', 'pass') + 1,
+                 after.dig('qualifiedRateByMaterial', 'concrete', 'pass'),
+                 'result=pass → concrete 桶 pass +1'
+  end
+
+  test 'M05.F01.I04 任务漏斗：六段拆分 data_entry 按 report_code 分段' do
+    fn 'M05.F01.I04'
+    api_get('/api/summary/stats')
+    assert_response :success
+    before = parsed['funnelByStage']
+
+    # 六种状态各一张 → 六段各 +1（data_entry 有/无 report_code 分 reporting/testing）
+    create_receipt_ar(@contract, @report_name.code, tenant_id, flow_status: 'receiving')
+    create_receipt_ar(@contract, @report_name.code, tenant_id, flow_status: 'task_assignment')
+    create_receipt_ar(@contract, @report_name.code, tenant_id,
+                      flow_status: 'data_entry', report_code: nil)
+    create_receipt_ar(@contract, @report_name.code, tenant_id,
+                      flow_status: 'data_entry', report_code: 'RP-T-9')
+    create_receipt_ar(@contract, @report_name.code, tenant_id, flow_status: 'review')
+    create_receipt_ar(@contract, @report_name.code, tenant_id, flow_status: 'issuance')
+
+    api_get('/api/summary/stats')
+    assert_response :success
+    f = parsed['funnelByStage']
+    { 'pending_collect' => 'receiving', 'received' => 'task_assignment',
+      'testing' => 'data_entry 无 report_code', 'reporting' => 'data_entry 有 report_code',
+      'reviewing' => 'review', 'issued' => 'issuance' }.each do |stage, why|
+      assert_equal before[stage] + 1, f[stage], "#{stage} 应 +1（#{why}）"
+    end
+  end
+
   private
 
   # DashboardStats 9 段必填面（M05.F01.I03/I04）
