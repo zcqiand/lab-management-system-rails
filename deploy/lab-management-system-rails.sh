@@ -78,7 +78,7 @@ if [ ! -f "$BASE/rails.env" ]; then
     printf 'LAB_SAAS_SERVICE_PASSWORD=%s\n' "$LAB_SAAS_SERVICE_PASSWORD"
     printf 'LAB_SAAS_SERVICE_CLIENT_ID=lab-management\n'
     printf 'LAB_AUTH_DEV_PASSWORD=%s\n' "$LAB_AUTH_DEV_PASSWORD"
-    printf 'LAB_CORS_ALLOWED_ORIGINS=https://lab-rails.xiangru.uk,https://lab-react.xiangru.uk,https://lab-vue.xiangru.uk,https://lab-nextjs.xiangru.uk\n'
+    printf 'LAB_CORS_ALLOWED_ORIGINS=https://lab-rails.xiangru.uk,https://lab-react.xiangru.uk,https://lab-vue.xiangru.uk,https://lab-nextjs.xiangru.uk,https://lab-flutter.xiangru.uk\n'
     printf 'SECRET_KEY_BASE=%s\n' "$(head -c 48 /dev/urandom | base64 | tr -d '\n')"
     # —— 兼容键（L0.5 键集相等；rails 运行时不读） ——
     printf 'DATABASE_URL=postgresql://%s:%s@%s:5432/lab_prod\n' "${PG_USER:-postgres}" "$PG_PASSWORD" "${PG_HOST:-100.79.128.25}"
@@ -197,13 +197,14 @@ if [ -f "$BASE/rails.env" ]; then
     printf 'SECRET_KEY_BASE=%s\n' "$(head -c 48 /dev/urandom | base64 | tr -d '\n')" >> "$BASE/rails.env"
   fi
 
-  # origin 级无损追加（家族同款）：lab 三前端 + saas 登录页 + 本域都可跨源调本后端，
+  # origin 级无损追加（家族同款）：lab 三前端 + saas 登录页 + flutter prod + 本域都可跨源调本后端，
   # 存量 env-file 缺哪个 origin 就补哪个（不整值覆盖，运维手工 origin 保留）。
   for cors_origin in "https://${NGINX_DOMAIN}" \
                      "https://lab-nextjs.xiangru.uk" \
                      "https://lab-react.xiangru.uk" \
                      "https://lab-vue.xiangru.uk" \
-                     "https://saas-react.xiangru.uk"; do
+                     "https://saas-react.xiangru.uk" \
+                     "https://lab-flutter.xiangru.uk"; do
     if grep -q '^LAB_CORS_ALLOWED_ORIGINS=' "$BASE/rails.env" && ! grep '^LAB_CORS_ALLOWED_ORIGINS=' "$BASE/rails.env" | grep -qF "$cors_origin"; then
       sed -i "s#^\(LAB_CORS_ALLOWED_ORIGINS=.*\)#\1,${cors_origin}#" "$BASE/rails.env"
       echo "→ reconcile LAB_CORS_ALLOWED_ORIGINS: 追加缺失 origin ${cors_origin}（origin 级，不整值覆盖）"
