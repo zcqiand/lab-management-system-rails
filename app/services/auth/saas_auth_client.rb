@@ -17,6 +17,11 @@ module Auth
     TokenResponse = Struct.new(:access_token, :refresh_token, :token_type, :expires_in, :scope,
                                keyword_init: true)
 
+    # REQ-2026-023：saas /api/v1/auth/login 完整响应（原生登录代理用）。
+    # 注意 saas user 无 displayName、availableTenants 无租户名（富化走 /admin/tenants）。
+    LoginResponse = Struct.new(:user, :available_tenants, :access_token, :refresh_token,
+                               :user_id, :current_tenant_id, keyword_init: true)
+
     def initialize(
       saas_base: ENV.fetch('LAB_SAAS_BASE_URL'),
       client_id: ENV.fetch('LAB_SAAS_CLIENT_ID'),
@@ -33,8 +38,24 @@ module Auth
 
     # body 对齐 saas LoginRequest 契约 {username, password, clientId}（2026-09-19 5.33 同款）
     def service_login(username, password)
-      post_json('/api/v1/auth/login', username: username, password: password,
-                                      clientId: @service_client_id)
+      h = post_json('/api/v1/auth/login', username: username, password: password,
+                                          clientId: @service_client_id)
+      TokenResponse.new(
+        access_token: h['accessToken'], refresh_token: h['refreshToken'],
+        token_type: h['tokenType'], expires_in: h['expiresIn'], scope: h['scope']
+      )
+    end
+
+    # REQ-2026-023：原生登录账密校验代理——clientId 取 OAuth client_id（LAB_SAAS_CLIENT_ID，
+    # 与 nextjs/springboot/aspnetcore 出站语义对齐；服务账号路径的 service_client_id 是另一键）
+    def user_login(username, password)
+      h = post_json('/api/v1/auth/login', username: username, password: password,
+                                          clientId: @client_id)
+      LoginResponse.new(
+        user: h['user'], available_tenants: h['availableTenants'],
+        access_token: h['accessToken'], refresh_token: h['refreshToken'],
+        user_id: h['userId'], current_tenant_id: h['currentTenantId']
+      )
     end
 
     def token(grant_type, code: nil, refresh_token: nil, redirect_uri: nil)
@@ -56,21 +77,13 @@ module Auth
         http.request(req)
       end
       case res.code.to_i
-      when 200..299 then parse_token(res.body)
+      when 200..299 then JSON.parse(res.body)
       when 401 then raise UnauthorizedClient, 'saas 401 unauthorized_client'
       when 400..499 then raise InvalidGrant, "saas #{res.code} #{truncate(res.body)}"
       else raise UpstreamUnavailable, "saas upstream 5xx: #{res.code}"
       end
     rescue SocketError, Errno::ECONNREFUSED, Timeout::Error => e # Timeout::Error 含 Net::OpenTimeout
       raise UpstreamUnavailable, "saas connect failed: #{e.message}"
-    end
-
-    def parse_token(raw)
-      h = JSON.parse(raw)
-      TokenResponse.new(
-        access_token: h['accessToken'], refresh_token: h['refreshToken'],
-        token_type: h['tokenType'], expires_in: h['expiresIn'], scope: h['scope']
-      )
     end
 
     def truncate(s, max = 200)

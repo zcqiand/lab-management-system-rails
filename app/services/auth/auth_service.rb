@@ -48,16 +48,22 @@ module Auth
       username = body[:username].to_s.strip
       password = body[:password].to_s
       raise ArgumentError, 'username and password are required' if username.empty? || password.empty?
-      unless @directory.check_password?(username, password)
-        raise ApplicationController::InvalidCredentials, 'Invalid username or password'
-      end
 
-      user = @directory.find_by_username(username)
-      raise ApplicationController::InvalidCredentials, 'unknown user' unless user
-
-      # 密码登录的 dev 用户无 saas 身份 → 服务账号拉菜单快照；失败不阻塞登录
+      # REQ-2026-023（2026-10-11 人裁方案 A）：账密校验代理 saas IdP——请求体账密调
+      # saas /api/v1/auth/login（clientId=LAB_SAAS_CLIENT_ID），本地 LAB_AUTH_DEV_PASSWORD /
+      # check_password? 路径退役（凭据真源=saas 库）。错误映射五仓统一：saas 4xx → 401
+      # INVALID_CREDENTIALS（不透传）；5xx/不可达 → 502 SAAS_UNAVAILABLE。
+      saas_login = proxy_saas_login(username, password)
+      saas_user = saas_login.user || {}
+      tenants = login_tenants(saas_login, saas_user)
+      user = login_user(saas_login, saas_user, tenants)
+      # 密码登录用户无 per-user saas refresh token → 仍用服务账号拉菜单快照
+      # （REQ-2026-023 非目标，行为不动：失败不阻塞登录，miss 时 menus 503）
       cache_menus_with_service_account(user.id)
-      session(user, nil, nil)
+      @membership_cache.put(user.id, tenants)
+      # lab 自家 JWT 重签（tenant_id=saas currentTenantId ?? 首租户）；
+      # refresh 维持 dev-placeholder（session 第 4 参 nil，不透传 saas refreshToken）
+      session(user, saas_login.current_tenant_id.presence || tenants.dig(0, :tenant_id), tenants)
     end
 
     # === 刷新 token（M01.F05.I04） ===
@@ -161,6 +167,53 @@ module Auth
     end
 
     private
+
+    # 账密代理出站（REQ-2026-023）。错误归类：saas 4xx → 401（不透传 saas 内部码）；
+    # 5xx/连接失败 → SaasIdpUnavailable（ApplicationController 映射 502 SAAS_UNAVAILABLE）
+    def proxy_saas_login(username, password)
+      @saas_auth.user_login(username, password)
+    rescue SaasAuthClient::InvalidGrant, SaasAuthClient::UnauthorizedClient
+      raise ApplicationController::InvalidCredentials, 'Invalid username or password'
+    rescue SaasAuthClient::UpstreamUnavailable => e
+      raise SaasIdpUnavailable, "saas IdP unavailable: #{e.message}"
+    end
+
+    # 代理登录响应 → 租户列表：saas user 无 displayName、availableTenants 无租户名 →
+    # 瞬时持 accessToken 拉平台租户列表富化（best-effort，失败降级 name=tenantId）
+    def login_tenants(saas_login, saas_user)
+      tenants_from_login(
+        saas_login.available_tenants || [],
+        fetch_tenant_names(saas_login.user_id.presence || saas_user['id'], saas_login.access_token)
+      )
+    end
+
+    # saas user → lab CurrentUser 直构（不 upsert 目录，与 nextjs/springboot 同）；
+    # id/username/displayName 三段 presence 回退链（first_presence 空串 falsy 语义——
+    # saas 无 displayName 时为空串，家族记忆 saas-no-displayname-empty-string-fallback-trap）
+    def login_user(saas_login, saas_user, tenants)
+      UserDirectory::CurrentUser.new(
+        id: first_presence(saas_user['id'], saas_login.user_id, 'unknown'),
+        username: first_presence(saas_user['username'], saas_user['email'], 'unknown'),
+        display_name: first_presence(saas_user['displayName'], saas_user['username'],
+                                     saas_user['email'], '未知用户'),
+        role_code: first_presence(tenants.dig(0, :role_ids, 0), 'member')
+      )
+    end
+
+    # 首个 presence 值（空串 falsy；压 login 回退链的 rubocop Metrics 分支数）
+    def first_presence(*values)
+      values.find(&:presence)
+    end
+
+    # availableTenants → MyTenant hash（REQ-2026-023）：过滤 removed/无 tenantId 后
+    # 复用 memberships 同款映射（富化 miss 降级 code=name=tenantId，与 tenants_from 同语义）
+    def tenants_from_login(available, name_by_id)
+      tenants_from(active_available_tenants(available), name_by_id)
+    end
+
+    def active_available_tenants(available)
+      (available || []).reject { |t| t['tenantId'].blank? || t['status'] == 'removed' }
+    end
 
     # saas token 到手后的公共水合：whoami → upsert 目录 → 菜单快照 → refresh token
     # 存回（rotate-once）→ 平台租户名富化 → memberships 快照 → 签发会话。

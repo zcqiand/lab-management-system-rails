@@ -45,8 +45,13 @@ class ApplicationController < ActionController::API
   # lab 认证域特有映射（lab-springboot GlobalExceptionHandler 镜像）：
   # MenusUnavailable→503 / Saas InvalidGrant→400 INVALID_GRANT（code 重放/过期）
   # / UpstreamUnavailable→502 SAAS_UPSTREAM_ERROR（UnauthorizedClient 已在 service 转 401）
+  # / SaasIdpUnavailable→502 SAAS_UNAVAILABLE（REQ-2026-023 登录路径，五仓统一码）
   rescue_from Auth::MenusUnavailable do |e|
     render_error(:service_unavailable, 'MENUS_UNAVAILABLE', e.message)
+  end
+
+  rescue_from Auth::SaasIdpUnavailable do |e|
+    render_error(:bad_gateway, 'SAAS_UNAVAILABLE', e.message)
   end
 
   rescue_from Auth::SaasAuthClient::InvalidGrant do |e|

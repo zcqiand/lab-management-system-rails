@@ -3,8 +3,8 @@
 module Auth
   # 配置式 demo 目录（lab-springboot ConfigUserDirectory 1:1 镜像）。
   # lab 库无身份表：用户/租户在内存（数据镜像 lab-msw seeds）。
-  # - 用户：alice / dev123456（USER-A, roleCode=admin），口令读 LAB_AUTH_DEV_PASSWORD
-  #   （ADR-0019 禁字面默认值，fail-fast）
+  # - 用户：alice（USER-A, roleCode=admin）——REQ-2026-023：口令校验已代理 saas IdP，
+  #   本目录只承担 SSO/refresh/me 的用户与租户查找
   # - 租户：TENANT-001 city-lab / TENANT-002 district-lab / TENANT-003 third-party
   # - SSO 用户 upsert 进内存；per-user saas refresh token（rotate-once reload 用）
   class UserDirectory
@@ -20,10 +20,8 @@ module Auth
                    role_ids: ['viewer'])
     ].freeze
 
-    def initialize(dev_password: ENV.fetch('LAB_AUTH_DEV_PASSWORD'))
-      raise ArgumentError, 'LAB_AUTH_DEV_PASSWORD must not be blank (ADR-0019)' if dev_password.blank?
-
-      @dev_password = dev_password
+    # REQ-2026-023：dev_password/check_password? 随本地校验路径退役（账密校验代理 saas IdP）。
+    def initialize
       @demo_user = CurrentUser.new(id: 'USER-A', username: 'alice', display_name: '管理员',
                                    role_code: 'admin')
       @upserted = {} # email => CurrentUser
@@ -47,10 +45,6 @@ module Auth
       return @demo_user if id == @demo_user.id
 
       @upserted.values.find { |u| u.id == id }
-    end
-
-    def check_password?(username, password)
-      @demo_user.username == username && @dev_password == password
     end
 
     def tenants_of(_username)

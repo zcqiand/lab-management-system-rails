@@ -28,23 +28,10 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     super
     Auth::AuthService.reset!
     @svc = Auth::AuthService.instance
-    @svc.saas_auth.define_singleton_method(:service_login) do |_u, _p|
-      Auth::SaasAuthClient::TokenResponse.new(access_token: 'saas-at', refresh_token: 'saas-rt',
-                                              token_type: 'Bearer', expires_in: 3600)
-    end
-    @svc.saas_auth.define_singleton_method(:token) do |grant, code: nil, refresh_token: nil, redirect_uri: nil|
-      @calls ||= []
-      (@calls ||= []) << { grant: grant, code: code, refresh: refresh_token, redirect: redirect_uri }
-      Auth::SaasAuthClient::TokenResponse.new(access_token: 'saas-at2', refresh_token: 'saas-rt2',
-                                              token_type: 'Bearer', expires_in: 3600)
-    end
-    @svc.saas_me.define_singleton_method(:whoami) do |_t|
-      { 'id' => 'saas-u1', 'email' => 'bob@lab.dev', 'displayName' => '鲍勃',
-        'currentTenantId' => 'ten-saas-1' }
-    end
-    @svc.saas_me.define_singleton_method(:list_my_tenants) { |_t| MANAGED_TENANTS }
-    @svc.saas_me.define_singleton_method(:list_my_menus) { |_t, _app| SAAS_MENU_TREE }
-    @svc.saas_me.define_singleton_method(:list_platform_tenants) { |_t| PLATFORM_TENANTS }
+    stub_service_login
+    stub_user_login_demo
+    stub_token
+    stub_saas_me
   end
 
   def teardown
@@ -64,6 +51,10 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'login wrong password is 401 INVALID_CREDENTIALS' do
+    # REQ-2026-023：校验代理 saas IdP —— saas 4xx（口令错）→ 401（不透传）
+    @svc.saas_auth.define_singleton_method(:user_login) do |_u, _p|
+      raise Auth::SaasAuthClient::InvalidGrant, 'saas 400 wrong password'
+    end
     post '/api/auth/login', params: { username: 'alice', password: 'nope' }, as: :json
     assert_response :unauthorized
     assert_equal 'INVALID_CREDENTIALS', JSON.parse(response.body)['code']
@@ -78,6 +69,35 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     post '/api/auth/native-login', params: { username: 'alice', password: 'dev123456' }, as: :json
     assert_response :success
     assert_equal 'USER-A', JSON.parse(response.body).dig('user', 'id')
+  end
+
+  # === REQ-2026-023：登录账密校验代理 saas IdP（五仓统一语义锁） ===
+
+  test 'M01.F05.I01 login proxies saas IdP and maps saas identity with lab jwt resign' do
+    recorded = stub_proxy_login
+    # 平台租户只富化 ten-saas-1（ten-saas-2 不在列表 → 降级 tenantId）
+    @svc.saas_me.define_singleton_method(:list_platform_tenants) do |_t|
+      [{ 'id' => 'ten-saas-1', 'name' => '市检测中心', 'tenantKey' => 'city' }]
+    end
+
+    post '/api/auth/login', params: { username: 'alice', password: 'pw-123' }, as: :json
+    assert_response :success
+    body = JSON.parse(response.body)
+    # 出站透传：账密原值进 user_login
+    assert_equal 'alice', recorded[:username]
+    assert_equal 'pw-123', recorded[:password]
+    assert_proxy_user_mapped(body)
+    assert_proxy_tenants_enriched(body)
+    assert_proxy_lab_jwt(body)
+  end
+
+  test 'M01.F05.I01 login saas unavailable is 502 SAAS_UNAVAILABLE' do
+    @svc.saas_auth.define_singleton_method(:user_login) do |_u, _p|
+      raise Auth::SaasAuthClient::UpstreamUnavailable, 'saas connect failed'
+    end
+    post '/api/auth/login', params: { username: 'alice', password: 'pw' }, as: :json
+    assert_response :bad_gateway
+    assert_equal 'SAAS_UNAVAILABLE', JSON.parse(response.body)['code']
   end
 
   test 'me without token is 401' do
@@ -219,6 +239,96 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def stub_service_login
+    @svc.saas_auth.define_singleton_method(:service_login) do |_u, _p|
+      Auth::SaasAuthClient::TokenResponse.new(access_token: 'saas-at', refresh_token: 'saas-rt',
+                                              token_type: 'Bearer', expires_in: 3600)
+    end
+  end
+
+  # REQ-2026-023：user_login 替身——与旧 demo 目录同形（USER-A/alice/三 demo 租户），
+  # 存量 login 消费测试（success/refresh round-trip/菜单快照）零改动
+  def stub_user_login_demo
+    @svc.saas_auth.define_singleton_method(:user_login) do |_u, _p|
+      Auth::SaasAuthClient::LoginResponse.new(
+        user: { 'id' => 'USER-A', 'username' => 'alice', 'email' => 'alice@saas.local' },
+        available_tenants: [
+          { 'tenantId' => 'TENANT-001', 'roleIds' => ['admin'], 'status' => 'active' },
+          { 'tenantId' => 'TENANT-002', 'roleIds' => ['technician'], 'status' => 'active' },
+          { 'tenantId' => 'TENANT-003', 'roleIds' => ['viewer'], 'status' => 'active' }
+        ],
+        access_token: 'dev-access-token', refresh_token: 'dev-refresh-token',
+        user_id: 'USER-A', current_tenant_id: nil
+      )
+    end
+  end
+
+  def stub_token
+    @svc.saas_auth.define_singleton_method(:token) do |grant, code: nil, refresh_token: nil, redirect_uri: nil|
+      @calls ||= []
+      (@calls ||= []) << { grant: grant, code: code, refresh: refresh_token, redirect: redirect_uri }
+      Auth::SaasAuthClient::TokenResponse.new(access_token: 'saas-at2', refresh_token: 'saas-rt2',
+                                              token_type: 'Bearer', expires_in: 3600)
+    end
+  end
+
+  def stub_saas_me
+    @svc.saas_me.define_singleton_method(:whoami) do |_t|
+      { 'id' => 'saas-u1', 'email' => 'bob@lab.dev', 'displayName' => '鲍勃',
+        'currentTenantId' => 'ten-saas-1' }
+    end
+    @svc.saas_me.define_singleton_method(:list_my_tenants) { |_t| MANAGED_TENANTS }
+    @svc.saas_me.define_singleton_method(:list_my_menus) { |_t, _app| SAAS_MENU_TREE }
+    @svc.saas_me.define_singleton_method(:list_platform_tenants) { |_t| PLATFORM_TENANTS }
+  end
+
+  # REQ-2026-023 代理登录替身：记录出站账密；saas user 无 displayName、双租户
+  # （ten-saas-2 供降级路径断言）
+  def stub_proxy_login
+    recorded = {}
+    @svc.saas_auth.define_singleton_method(:user_login) do |u, p|
+      recorded[:username] = u
+      recorded[:password] = p
+      Auth::SaasAuthClient::LoginResponse.new(
+        user: { 'id' => 'saas-u-alice', 'username' => 'alice', 'email' => 'alice@saas.local' },
+        available_tenants: [
+          { 'tenantId' => 'ten-saas-1', 'roleIds' => ['admin'], 'status' => 'active' },
+          { 'tenantId' => 'ten-saas-2', 'roleIds' => ['technician'], 'status' => 'active' }
+        ],
+        access_token: 'u-at', refresh_token: 'u-rt', user_id: 'saas-u-alice',
+        current_tenant_id: nil
+      )
+    end
+    recorded
+  end
+
+  def assert_proxy_user_mapped(body)
+    # user 映射自 saas；roleCode=首租户 roleIds[0]
+    assert_equal 'saas-u-alice', body.dig('user', 'id')
+    assert_equal 'alice', body.dig('user', 'username')
+    assert_equal 'admin', body.dig('user', 'roleCode')
+  end
+
+  def assert_proxy_tenants_enriched(body)
+    # tenants 四字段 + 富化真名/tenantKey；miss 降级 tenantId
+    assert_equal 2, body['tenants'].size
+    assert_equal 'ten-saas-1', body.dig('tenants', 0, 'tenantId')
+    assert_equal 'city', body.dig('tenants', 0, 'code')
+    assert_equal '市检测中心', body.dig('tenants', 0, 'name')
+    assert_equal 'ten-saas-2', body.dig('tenants', 1, 'code')
+    assert_equal 'ten-saas-2', body.dig('tenants', 1, 'name')
+  end
+
+  def assert_proxy_lab_jwt(body)
+    # lab 自家 JWT 重签：可验签，sub=saas id，tenant_id=首租户；
+    # refresh 维持 dev-placeholder（不透传 saas refreshToken）
+    claims, = JWT.decode(body['token'], ENV.fetch('JWT_SIGNING_KEY'), true, algorithm: 'HS256')
+    assert_equal 'saas-u-alice', claims['sub']
+    assert_equal 'ten-saas-1', claims['tenant_id']
+    payload = JSON.parse(Base64.urlsafe_decode64(body['refreshToken'].split('.')[1]))
+    assert_equal 'dev-placeholder', payload['saas_refresh_token']
+  end
 
   def login_alice
     post '/api/auth/login', params: { username: 'alice', password: 'dev123456' }, as: :json
