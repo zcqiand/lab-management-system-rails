@@ -44,8 +44,8 @@ if [ -z "${LAB_SAAS_SERVICE_USER:-}" ] || [ -z "${LAB_SAAS_SERVICE_PASSWORD:-}" 
   echo "ERROR: LAB_SAAS_SERVICE_USER/LAB_SAAS_SERVICE_PASSWORD secrets required (菜单快照服务账号，禁 dev 兜底)" >&2
   exit 1
 fi
-if [ -z "${PG_PASSWORD:-}" ] || [ -z "${JWT_SIGNING_KEY:-}" ] || [ -z "${LAB_SAAS_CLIENT_SECRET:-}" ] || [ -z "${LAB_AUTH_DEV_PASSWORD:-}" ]; then
-  echo "ERROR: PG_PASSWORD / JWT_SIGNING_KEY / LAB_SAAS_CLIENT_SECRET / LAB_AUTH_DEV_PASSWORD secrets required" >&2
+if [ -z "${PG_PASSWORD:-}" ] || [ -z "${JWT_SIGNING_KEY:-}" ] || [ -z "${LAB_SAAS_CLIENT_SECRET:-}" ]; then
+  echo "ERROR: PG_PASSWORD / JWT_SIGNING_KEY / LAB_SAAS_CLIENT_SECRET secrets required" >&2
   exit 1
 fi
 
@@ -77,7 +77,6 @@ if [ ! -f "$BASE/rails.env" ]; then
     printf 'LAB_SAAS_SERVICE_USER=%s\n' "$LAB_SAAS_SERVICE_USER"
     printf 'LAB_SAAS_SERVICE_PASSWORD=%s\n' "$LAB_SAAS_SERVICE_PASSWORD"
     printf 'LAB_SAAS_SERVICE_CLIENT_ID=lab-management\n'
-    printf 'LAB_AUTH_DEV_PASSWORD=%s\n' "$LAB_AUTH_DEV_PASSWORD"
     printf 'LAB_CORS_ALLOWED_ORIGINS=https://lab-rails.xiangru.uk,https://lab-react.xiangru.uk,https://lab-vue.xiangru.uk,https://lab-nextjs.xiangru.uk,https://lab-flutter.xiangru.uk\n'
     printf 'SECRET_KEY_BASE=%s\n' "$(head -c 48 /dev/urandom | base64 | tr -d '\n')"
     # —— 兼容键（L0.5 键集相等；rails 运行时不读） ——
@@ -190,7 +189,13 @@ if [ -f "$BASE/rails.env" ]; then
   upsert_if_placeholder LAB_SAAS_CLIENT_SECRET "$LAB_SAAS_CLIENT_SECRET"
   upsert_if_placeholder LAB_SAAS_SERVICE_USER "$LAB_SAAS_SERVICE_USER"
   upsert_if_placeholder LAB_SAAS_SERVICE_PASSWORD "$LAB_SAAS_SERVICE_PASSWORD"
-  upsert_if_placeholder LAB_AUTH_DEV_PASSWORD "$LAB_AUTH_DEV_PASSWORD"
+  # REQ-2026-023（2026-10-11）死键清理:LAB_AUTH_DEV_PASSWORD 随原生登录代理
+  # saas IdP 退役(凭据真源=saas 库),存量 env-file 残留行删除。
+  if grep -q '^LAB_AUTH_DEV_PASSWORD=' "$BASE/rails.env"; then
+    echo "→ drop dead key LAB_AUTH_DEV_PASSWORD from $BASE/rails.env (REQ-2026-023 原生登录代理 saas)"
+    umask 077
+    sed -i '/^LAB_AUTH_DEV_PASSWORD=/d' "$BASE/rails.env"
+  fi
   if ! grep -q '^SECRET_KEY_BASE=..*' "$BASE/rails.env"; then
     echo "→ append SECRET_KEY_BASE (random, persisted) to existing $BASE/rails.env"
     umask 077

@@ -44,10 +44,11 @@
 
 - JWT 无 `aud` claim（lab 契约 token 不带 audience）；`typ` claim 强校验
 - 路径前缀 `/api`（无 v1 段）
-- env 键 = LAB_*（LAB_CORS_ALLOWED_ORIGINS / LAB_SAAS_* / LAB_AUTH_DEV_PASSWORD）+ PG_* 五件套
+- env 键 = LAB_*（LAB_CORS_ALLOWED_ORIGINS / LAB_SAAS_*）+ PG_* 五件套
+  （REQ-2026-023：LAB_AUTH_DEV_PASSWORD 已随原生登录代理 saas IdP 退役）
 - SSO 是**客户端**侧：lab 以 OAuth client 身份对接 saas IdP（SaasAuthClient 镜像），
   自签 lab token 内嵌 saas refresh token（`saas_refresh_token` claim）
-- lab 库无用户表：登录走 saas（SSO）或 demo 目录（LAB_AUTH_DEV_PASSWORD），
+- lab 库无用户表：登录走 saas（SSO / 原生登录账密代理 saas 校验），
   菜单/权限经 saas /me 快照（MembershipSnapshotCache/MenuSnapshotCache 镜像）
 
 ## 门禁
