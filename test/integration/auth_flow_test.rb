@@ -100,6 +100,38 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     assert_equal 'SAAS_UNAVAILABLE', JSON.parse(response.body)['code']
   end
 
+  # === REQ-2026-023 live 回归（2026-10-11 五目标同时失败指纹） ===
+  # 现场：登录 sub=saas user id / tenant_id claim=saas 租户，但登录链不落
+  # directory upsert + membership 快照 → me/switch_tenant 的 resolve_user
+  # 报 unknown user 401；switch_tenant 归属校验写死 demo 字面量 → saas 租户 404。
+  # 契约：登录后 me/switch 必须与登录响应同一租户体系（2026-09-03 对齐约束：
+  # tenants.find(activeTenantId) 必命中）。
+
+  test 'M00.F01.I01 M00.F02.I01 login session coherence me and switch stay in saas tenant system' do
+    stub_uuid_login
+    post '/api/auth/login', params: { username: 'alice', password: 'pw-123' }, as: :json
+    assert_response :success
+    body = JSON.parse(response.body)
+    tid = body.dig('tenants', 0, 'tenantId')
+    assert_equal '00000000-0000-0000-0000-000000000001', tid
+
+    # me：resolve_user 必须能解析密码登录签发的 sub；租户与登录响应同体系
+    get '/api/auth/me', headers: auth_header(body['token'])
+    assert_response :success
+    me = JSON.parse(response.body)
+    assert_equal tid, me.dig('tenants', 0, 'tenantId')
+    assert_equal body['tenants'].size, me['tenants'].size
+
+    # switch-tenant：登录响应里的租户可切 → 200 + 3 段真 JWT（tenant_id=目标租户）
+    post '/api/auth/switch-tenant', params: { tenantId: tid },
+                                    headers: auth_header(body['token']), as: :json
+    assert_response :success
+    switched = JSON.parse(response.body)
+    assert_equal 3, switched['token'].split('.').length
+    claims = LabAuth::TokenService.new.verify!(switched['token'])
+    assert_equal tid, claims['tenant_id']
+  end
+
   test 'me without token is 401' do
     get '/api/auth/me'
     assert_response :unauthorized
@@ -301,6 +333,25 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
       )
     end
     recorded
+  end
+
+  # live 回归替身：saas 真实租户是 UUID 形（live 实测），刻意不用 TENANT-00x
+  # 字面量——会与 demo 目录撞键掩盖失配（本测试的存在理由）。
+  def stub_uuid_login
+    @svc.saas_auth.define_singleton_method(:user_login) do |_u, _p|
+      Auth::SaasAuthClient::LoginResponse.new(
+        user: { 'id' => '00000000-0000-0000-0000-b00000000001', 'username' => 'alice',
+                'email' => 'alice@saas.local' },
+        available_tenants: [
+          { 'tenantId' => '00000000-0000-0000-0000-000000000001', 'roleIds' => ['admin'],
+            'status' => 'active' },
+          { 'tenantId' => '00000000-0000-0000-0000-000000000002', 'roleIds' => ['technician'],
+            'status' => 'active' }
+        ],
+        access_token: 'u-at', refresh_token: 'u-rt',
+        user_id: '00000000-0000-0000-0000-b00000000001', current_tenant_id: nil
+      )
+    end
   end
 
   def assert_proxy_user_mapped(body)

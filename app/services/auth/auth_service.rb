@@ -61,6 +61,7 @@ module Auth
       # （REQ-2026-023 非目标，行为不动：失败不阻塞登录，miss 时 menus 503）
       cache_menus_with_service_account(user.id)
       @membership_cache.put(user.id, tenants)
+      upsert_login_directory(saas_user, user)
       # lab 自家 JWT 重签（tenant_id=saas currentTenantId ?? 首租户）；
       # refresh 维持 dev-placeholder（session 第 4 参 nil，不透传 saas refreshToken）
       session(user, saas_login.current_tenant_id.presence || tenants.dig(0, :tenant_id), tenants)
@@ -95,15 +96,18 @@ module Auth
 
     def me(claims)
       user = resolve_user(claims)
-      saas_refresh = @directory.get_saas_refresh_token(user.id)
-      if saas_refresh.present?
-        cached = @membership_cache.get(user.id)
-        if cached.blank?
-          raise ApplicationController::InvalidCredentials,
-                "membership snapshot unavailable for user #{user.id} (cache miss); refresh required"
-        end
+      # REQ-2026-023 live 回归：快照 hit 优先（SSO 与密码登录用户同链——密码登录
+      # 也在 login 时点填快照）；miss 且持 saas refresh（SSO 用户）→ refresh required；
+      # miss 且无 refresh（密码登录用户）→ demo 目录降级。
+      cached = @membership_cache.get(user.id)
+      unless cached.blank?
         current = claims['tenant_id'].presence || cached.first[:tenant_id]
         return { user: user_struct(user), tenants: cached, currentTenantId: current }
+      end
+
+      if @directory.get_saas_refresh_token(user.id).present?
+        raise ApplicationController::InvalidCredentials,
+              "membership snapshot unavailable for user #{user.id} (cache miss); refresh required"
       end
 
       current = claims['tenant_id'].presence || @directory.default_tenant.tenant_id
@@ -115,10 +119,14 @@ module Auth
     def switch_tenant(claims, body)
       user = resolve_user(claims)
       tenant_id = body[:tenantId].to_s
-      target = @directory.find_by_tenant_id(tenant_id)
+      # REQ-2026-023 live 回归：归属=用户当前会话的租户集（membership 快照，
+      # login/sso/refresh 写入），demo 目录只作快照 miss 兜底——写死 demo 字面量
+      # 会把 saas UUID 租户 404。命中换发（tenant_id=目标租户），响应租户同源。
+      known_tenants = @membership_cache.get(user.id).presence || directory_tenants(user)
+      target = known_tenants.find { |t| t[:tenant_id] == tenant_id }
       raise ActiveRecord::RecordNotFound, 'Tenant not found' unless target
 
-      session(user, target.tenant_id, nil)
+      session(user, target[:tenant_id], known_tenants)
     end
 
     # === 动态菜单 / 权限集（M01.F04.I01/I02） ===
@@ -187,7 +195,16 @@ module Auth
       )
     end
 
-    # saas user → lab CurrentUser 直构（不 upsert 目录，与 nextjs/springboot 同）；
+    # REQ-2026-023 live 回归（2026-10-11 五目标 401 指纹）：密码登录用户落
+    # directory（镜像 upsert_lab_user 链）——me/switch_tenant 的 resolve_user
+    # 按 sub=saas user id 解析，不落目录必 unknown user 401。email 缺失降级
+    # username 作 upsert 键（ADR-0008 同款 email 桥接约定）。
+    def upsert_login_directory(saas_user, user)
+      @directory.upsert(user.id, first_presence(saas_user['email'], user.username),
+                        user.display_name, user.role_code)
+    end
+
+    # saas user → lab CurrentUser 直构（目录落库在 login 主体做，upsert 键同链）；
     # id/username/displayName 三段 presence 回退链（first_presence 空串 falsy 语义——
     # saas 无 displayName 时为空串，家族记忆 saas-no-displayname-empty-string-fallback-trap）
     def login_user(saas_login, saas_user, tenants)
