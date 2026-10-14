@@ -63,3 +63,9 @@ react/vue/springboot 已随各自 REQ 推进开发中；rails 服务端扩展段
 |---|---|---|---|
 | FN_REGISTRY 首次启用，键匹配（base_label vs result.name）不符则锚静默落空 | trace.json 空 fns | trace 校验步显式断言 I03/I04 ≥1，落空即红 | 还原测试文件 |
 | 集成测试共享 setup 计数漂移 | 新测试假红 | 每个 test 事务回滚隔离，setup 四行即全量事实；计数按 setup 精确断言 | 还原测试文件 |
+
+## 7. 人工验收记录
+
+人工验收通过（验收人：用户，2026-10-07 明示「验收通过」）。机器面实证：`TRACE_MAP=1 rake test`
+180 测试、inert 1（既有脚手架冒烟）、I03×1 + I04×1 恰好挂锚；gate 全链 EXIT=0（55afac9 已推远端）。
+GA 翻转凭本记录执行（mirror 免批通道，tree_change 正门）。
