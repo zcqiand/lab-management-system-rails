@@ -246,6 +246,22 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     assert_equal 'ten-saas-1', JSON.parse(response.body)['currentTenantId']
   end
 
+  test 'me with empty membership snapshot returns 200 empty not refresh-required (I2 family)' do
+    # tracker 5.111：saas 侧用户无任何 membership → 回调缓存 []（非 nil）；
+    # 家族裁定（I2 双栈 4893341/2437aa7）空快照=200 tenants=[] currentTenantId=""（空即空），
+    # 不得误判 miss 走 refresh-required 401 / demo 目录降级
+    @svc.saas_me.define_singleton_method(:list_my_tenants) { |_t| [] }
+    post '/api/auth/sso/callback',
+         params: { code: 'one-time-code', redirectUri: 'http://localhost:5203/login' }, as: :json
+    assert_response :success
+    uid = JSON.parse(response.body).dig('user', 'id')
+    get '/api/auth/me', headers: auth_header(access_token(uid))
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal [], body['tenants']
+    assert_equal '', body['currentTenantId']
+  end
+
   test 'switch tenant reissues token with target claim' do
     post '/api/auth/switch-tenant', params: { tenantId: 'TENANT-002' },
                                     headers: auth_header(access_token('USER-A')), as: :json

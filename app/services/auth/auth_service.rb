@@ -100,8 +100,10 @@ module Auth
       # 也在 login 时点填快照）；miss 且持 saas refresh（SSO 用户）→ refresh required；
       # miss 且无 refresh（密码登录用户）→ demo 目录降级。
       cached = @membership_cache.get(user.id)
-      unless cached.blank?
-        current = claims['tenant_id'].presence || cached.first[:tenant_id]
+      # 空快照（[]，非 nil）也是 hit：家族裁定（I2 双栈 4893341/2437aa7，tracker 5.111）
+      # 空即空 → tenants=[] currentTenantId=""；不得误判 miss 走 refresh-required/demo 降级
+      unless cached.nil?
+        current = claims['tenant_id'].presence || cached.first&.[](:tenant_id) || ''
         return { user: user_struct(user), tenants: cached, currentTenantId: current }
       end
 
