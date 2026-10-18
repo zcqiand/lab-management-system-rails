@@ -24,7 +24,10 @@ module LabManagementSystemRails
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    # 用户面「今日/时间呈现」统一本地时区（+0800；tracker 5.113 人裁 2026-10-18）——
+    # AR 存储仍 UTC（default_timezone 缺省），序列化经 Time.zone → 与 Date.today 对齐，
+    # 消除每日本地 00:00-08:00 窗内 summary todayTestCount 少计
+    config.time_zone = 'Beijing'
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Only loads a smaller set of middleware suitable for API only apps.
