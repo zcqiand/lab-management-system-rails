@@ -41,7 +41,10 @@ module LabSupport
     object = InspectionObject.create!(
       code: uniq_code("#{prefix}-obj"), inspection_specialty_code: specialty.code,
       source_project_no: "P-#{prefix}", source_project_name: "项目#{prefix}", name: "对象#{prefix}",
-      sort_order: 0, created_at: now, updated_at: now
+      # sort_order 压尾：事务回滚在进程被杀时不生效，残留行 sort_order=0 会抢占
+      # lab-react CategoryDictList 默认选中位（首对象）令 /models-list 空——
+      # aspnetcore EfStorePgTest 5.74 同款事故同款修法（OBJ-PG-T sort_order 9999）。
+      sort_order: 9_999, created_at: now, updated_at: now
     )
     parameter = InspectionParameter.create!(
       code: uniq_code("#{prefix}-ip"), name: "参数#{prefix}", raw_name: "raw-#{prefix}",
