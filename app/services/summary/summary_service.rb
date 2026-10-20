@@ -77,9 +77,12 @@ module Summary
       stages.sum { |s| counting.fetch(s, []).size }
     end
 
-    # 今日试验：created_at 或 test_start_date 以今天开头（字符串前缀，镜像 Java startsWith）
+    # 今日试验：created_at 或 test_start_date 以今天开头（字符串前缀，镜像 Java startsWith）。
+    # 「今天」必须与 created_at 戳同钟取 UTC（2026-10-21 SummaryApiTest 实证红）：戳是
+    # now_iso=Time.now.utc（镜像 springboot OffsetDateTime.now(UTC)），比较基准取本地
+    # Date.today 会在 UTC+8 00:00-08:00 把新单判成非当日。
     def today_test_count(receipts)
-      today = Date.today.iso8601
+      today = Time.now.utc.strftime('%Y-%m-%d')
       receipts.count do |r|
         r.created_at.to_s.start_with?(today) || r.test_start_date.to_s.start_with?(today)
       end
