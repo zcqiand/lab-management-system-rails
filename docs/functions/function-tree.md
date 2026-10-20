@@ -95,6 +95,7 @@
 | M01.F05.I03 | SSO 回调 | 接口 | 前端+后端 | POST /api/auth/sso/callback:saas POST /api/v1/oauth/token 用一次性 code 换 token,再 /me/whoami + /me/tenants 拿 user,membership 信 saas;首次 SSO 按 email upsert 到 lab directory;state 校验在前端回跳比对 | 已上线 |
 | M01.F05.I04 | 刷新 token | 接口 | 前端+后端 | POST /api/auth/refresh:lab refresh token 是 HS256 JWT(typ=refresh),内嵌 saas refresh token;调 saas POST /api/v1/oauth/token grantType=refresh_token 续,再签新 lab JWT | 已上线 |
 | M01.F05.I05 | 登出 | 接口 | 前端+后端 | POST /api/auth/logout：无状态 JWT 服务端无 session，前端清存储 | 已上线 |
+| M01.F05.I06 | 原生登录 | 接口 | 前端+后端 | POST /api/auth/native-login：非浏览器客户端密码通道；校验代理 saas IdP——请求体账密调 saas /api/v1/auth/login（clientId=lab-management），saas 4xx→401 INVALID_CREDENTIALS 不透传、5xx/不可达→502 SAAS_UNAVAILABLE；lab 自家 JWT 重签（HS256），LoginResponse 契约形状不变（REQ-2026-023；shared 树已上线，本仓已实现且有集成测试锚定，2026-10-19 免批③翻转） | 已上线 |
 
 ---
 

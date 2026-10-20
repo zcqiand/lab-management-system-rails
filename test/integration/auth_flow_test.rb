@@ -190,7 +190,7 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     get '/api/auth/me', headers: auth_header(body['token'])
     assert_response :success
     me = JSON.parse(response.body)
-    assert_equal 'ten-saas-1', me['currentTenantId']
+    assert_equal 'city', me['currentTenantId']  # claim=tenant_key（2026-10-20 人裁）
     assert_equal 2, me['tenants'].size
     refute_equal stub_token, body['refreshToken']
     assert svc
@@ -243,7 +243,7 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     # me() 走 SSO 体系：membership 快照命中（回调整时已填充）
     get '/api/auth/me', headers: auth_header(body['token'])
     assert_response :success
-    assert_equal 'ten-saas-1', JSON.parse(response.body)['currentTenantId']
+    assert_equal 'city', JSON.parse(response.body)['currentTenantId']  # tenant_key 人裁
   end
 
   test 'me with empty membership snapshot returns 200 empty not refresh-required (I2 family)' do
@@ -380,7 +380,8 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
   def assert_proxy_tenants_enriched(body)
     # tenants 四字段 + 富化真名/tenantKey；miss 降级 tenantId
     assert_equal 2, body['tenants'].size
-    assert_equal 'ten-saas-1', body.dig('tenants', 0, 'tenantId')
+    # 2026-10-20 租户标识=tenant_key（人裁「对外交互用 key」）：命中租户 tenantId=tenantKey
+    assert_equal 'city', body.dig('tenants', 0, 'tenantId')
     assert_equal 'city', body.dig('tenants', 0, 'code')
     assert_equal '市检测中心', body.dig('tenants', 0, 'name')
     assert_equal 'ten-saas-2', body.dig('tenants', 1, 'code')
@@ -392,7 +393,7 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     # refresh 维持 dev-placeholder（不透传 saas refreshToken）
     claims, = JWT.decode(body['token'], ENV.fetch('JWT_SIGNING_KEY'), true, algorithm: 'HS256')
     assert_equal 'saas-u-alice', claims['sub']
-    assert_equal 'ten-saas-1', claims['tenant_id']
+    assert_equal 'city', claims['tenant_id']
     payload = JSON.parse(Base64.urlsafe_decode64(body['refreshToken'].split('.')[1]))
     assert_equal 'dev-placeholder', payload['saas_refresh_token']
   end

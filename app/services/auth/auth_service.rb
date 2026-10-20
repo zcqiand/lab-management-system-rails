@@ -55,16 +55,23 @@ module Auth
       # INVALID_CREDENTIALS（不透传）；5xx/不可达 → 502 SAAS_UNAVAILABLE。
       saas_login = proxy_saas_login(username, password)
       saas_user = saas_login.user || {}
-      tenants = login_tenants(saas_login, saas_user)
+      # 平台租户名富化 hoist：tenants 映射与会话 tenant_key 解析同源（2026-10-20 人裁）
+      name_by_id = fetch_tenant_names(saas_login.user_id.presence || saas_user['id'],
+                                      saas_login.access_token)
+      tenants = tenants_from_login(saas_login.available_tenants || [], name_by_id)
       user = login_user(saas_login, saas_user, tenants)
       # 密码登录用户无 per-user saas refresh token → 仍用服务账号拉菜单快照
       # （REQ-2026-023 非目标，行为不动：失败不阻塞登录，miss 时 menus 503）
       cache_menus_with_service_account(user.id)
       @membership_cache.put(user.id, tenants)
       upsert_login_directory(saas_user, user)
-      # lab 自家 JWT 重签（tenant_id=saas currentTenantId ?? 首租户）；
-      # refresh 维持 dev-placeholder（session 第 4 参 nil，不透传 saas refreshToken）
-      session(user, saas_login.current_tenant_id.presence || tenants.dig(0, :tenant_id), tenants)
+      # lab 自家 JWT 重签（tenant_id=saas currentTenantId ?? 首租户 → tenant_key，
+      # 2026-10-20 人裁「对外交互用 key」）；refresh 维持 dev-placeholder（session
+      # 第 4 参 nil，不透传 saas refreshToken）
+      session(user,
+              resolve_tenant_key(saas_login.current_tenant_id.presence ||
+                                 tenants.dig(0, :tenant_id), name_by_id),
+              tenants)
     end
 
     # === 刷新 token（M01.F05.I04） ===
@@ -188,15 +195,6 @@ module Auth
       raise SaasIdpUnavailable, "saas IdP unavailable: #{e.message}"
     end
 
-    # 代理登录响应 → 租户列表：saas user 无 displayName、availableTenants 无租户名 →
-    # 瞬时持 accessToken 拉平台租户列表富化（best-effort，失败降级 name=tenantId）
-    def login_tenants(saas_login, saas_user)
-      tenants_from_login(
-        saas_login.available_tenants || [],
-        fetch_tenant_names(saas_login.user_id.presence || saas_user['id'], saas_login.access_token)
-      )
-    end
-
     # REQ-2026-023 live 回归（2026-10-11 五目标 401 指纹）：密码登录用户落
     # directory（镜像 upsert_lab_user 链）——me/switch_tenant 的 resolve_user
     # 按 sub=saas user id 解析，不落目录必 unknown user 401。email 缺失降级
@@ -241,10 +239,12 @@ module Auth
       lab_user = upsert_lab_user(saas_user)
       cache_menus(lab_user.id, t.access_token)
       @directory.set_saas_refresh_token(lab_user.id, t.refresh_token)
-      tenants = snapshot_memberships(lab_user.id, t.access_token)
-      session(lab_user,
-              callback ? saas_user['currentTenantId'] : tenant_id,
-              tenants, t.refresh_token)
+      name_by_id = fetch_tenant_names(lab_user.id, t.access_token)
+      tenants = snapshot_memberships(lab_user.id, t.access_token, name_by_id)
+      # callback（SSO）路径 current 租户经 tenant_key 解析（2026-10-20 人裁）；
+      # refresh 路径 claim 原样透传（claim 已是签发时点的 key）
+      current = callback ? resolve_tenant_key(saas_user['currentTenantId'], name_by_id) : tenant_id
+      session(lab_user, current, tenants, t.refresh_token)
     rescue SaasMeClient::UpstreamUnavailable => e
       raise SaasAuthClient::UpstreamUnavailable, e.message
     end
@@ -257,8 +257,8 @@ module Auth
     end
 
     # memberships 快照 + 平台租户名富化，进缓存（me() 的 SSO 租户体系数据源）
-    def snapshot_memberships(user_id, saas_access_token)
-      name_by_id = fetch_tenant_names(user_id, saas_access_token)
+    def snapshot_memberships(user_id, saas_access_token, name_by_id = nil)
+      name_by_id ||= fetch_tenant_names(user_id, saas_access_token)
       tenants = tenants_from(@saas_me.list_my_tenants(saas_access_token), name_by_id)
       @membership_cache.put(user_id, tenants)
       tenants
@@ -285,15 +285,24 @@ module Auth
       @directory.tenants_of(user.username).map { |t| tenant_struct(t) }
     end
 
-    # memberships → MyTenant hash；名字富化 miss 降级 code=name=tenantId（切租户器不空）
+    # memberships → MyTenant hash；命中富化 tenant_id=code=tenantKey（2026-10-20 tenant_key
+    # 人裁）/name=真名；miss 降级原 tenantId（切租户器不空）
     def tenants_from(memberships, name_by_id)
       (memberships || []).map do |m|
         t = name_by_id[m['tenantId']] || {}
-        { tenant_id: m['tenantId'],
-          code: t['tenantKey'].presence || m['tenantId'],
+        tid = t['tenantKey'].presence || m['tenantId']
+        { tenant_id: tid,
+          code: tid,
           name: t['name'].presence || m['tenantId'],
           role_ids: m['roleIds'] || [] }
       end
+    end
+
+    # 2026-10-20 tenant_key 人裁：对外交互用 key，不用 UUID。平台租户列表命中且 tenantKey
+    # 非空 → tenantKey；miss/lookup 失败降级原标识（与 tenants_from 同款 best-effort 语义）。
+    def resolve_tenant_key(saas_tenant_id, name_by_id)
+      t = name_by_id[saas_tenant_id.to_s] || {}
+      t['tenantKey'].presence || saas_tenant_id
     end
 
     # 失败只 warn 返空（best-effort，不阻塞登录；名字降级 tenantId）
