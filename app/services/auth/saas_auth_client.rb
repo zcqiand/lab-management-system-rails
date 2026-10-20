@@ -64,7 +64,11 @@ module Auth
       body[:code] = code if code
       body[:refreshToken] = refresh_token if refresh_token
       body[:redirectUri] = redirect_uri if redirect_uri
-      post_json('/api/v1/oauth/token', **body)
+      h = post_json('/api/v1/oauth/token', **body)
+      TokenResponse.new(
+        access_token: h['accessToken'], refresh_token: h['refreshToken'],
+        token_type: h['tokenType'], expires_in: h['expiresIn'], scope: h['scope']
+      )
     end
 
     private
