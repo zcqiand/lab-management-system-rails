@@ -56,9 +56,7 @@ module Auth
       saas_login = proxy_saas_login(username, password)
       saas_user = saas_login.user || {}
       # 平台租户名富化 hoist：tenants 映射与会话 tenant_key 解析同源（2026-10-20 人裁）
-      name_by_id = fetch_tenant_names(saas_login.user_id.presence || saas_user['id'],
-                                      saas_login.access_token)
-      tenants = tenants_from_login(saas_login.available_tenants || [], name_by_id)
+      tenants, name_by_id = login_tenants_with_names(saas_login, saas_user)
       user = login_user(saas_login, saas_user, tenants)
       # 密码登录用户无 per-user saas refresh token → 仍用服务账号拉菜单快照
       # （REQ-2026-023 非目标，行为不动：失败不阻塞登录，miss 时 menus 503）
@@ -68,10 +66,20 @@ module Auth
       # lab 自家 JWT 重签（tenant_id=saas currentTenantId ?? 首租户 → tenant_key，
       # 2026-10-20 人裁「对外交互用 key」）；refresh 维持 dev-placeholder（session
       # 第 4 参 nil，不透传 saas refreshToken）
-      session(user,
-              resolve_tenant_key(saas_login.current_tenant_id.presence ||
-                                 tenants.dig(0, :tenant_id), name_by_id),
+      session(user, resolve_tenant_key(login_current_tenant(saas_login, tenants), name_by_id),
               tenants)
+    end
+
+    # 登录租户列表 + 名字映射成对产出（AbcSize 拆分：login 主体只消费结果）
+    def login_tenants_with_names(saas_login, saas_user)
+      name_by_id = fetch_tenant_names(saas_login.user_id.presence || saas_user['id'],
+                                      saas_login.access_token)
+      [tenants_from_login(saas_login.available_tenants || [], name_by_id), name_by_id]
+    end
+
+    # 会话 current 租户：saas currentTenantId 优先，缺省落首租户
+    def login_current_tenant(saas_login, tenants)
+      saas_login.current_tenant_id.presence || tenants.dig(0, :tenant_id)
     end
 
     # === 刷新 token（M01.F05.I04） ===

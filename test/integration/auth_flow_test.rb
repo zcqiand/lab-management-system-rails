@@ -190,7 +190,7 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     get '/api/auth/me', headers: auth_header(body['token'])
     assert_response :success
     me = JSON.parse(response.body)
-    assert_equal 'city', me['currentTenantId']  # claim=tenant_key（2026-10-20 人裁）
+    assert_equal 'city', me['currentTenantId'] # claim=tenant_key（2026-10-20 人裁）
     assert_equal 2, me['tenants'].size
     refute_equal stub_token, body['refreshToken']
     assert svc
@@ -243,7 +243,7 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     # me() 走 SSO 体系：membership 快照命中（回调整时已填充）
     get '/api/auth/me', headers: auth_header(body['token'])
     assert_response :success
-    assert_equal 'city', JSON.parse(response.body)['currentTenantId']  # tenant_key 人裁
+    assert_equal 'city', JSON.parse(response.body)['currentTenantId'] # tenant_key 人裁
   end
 
   test 'me with empty membership snapshot returns 200 empty not refresh-required (I2 family)' do
