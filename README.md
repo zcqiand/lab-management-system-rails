@@ -32,6 +32,25 @@ npm run build      # 生产构建
 | :--- | :--- | :--- |
 | （待补） | | |
 
+### 书一《Ruby从入门到项目实践》（第二部分）
+
+- 书稿定位：xr-know-012，第 21、22、23、24、25、26、27、28、29、30、31、32 章正文代码块挂本仓 `source=` 锚点
+- 配套版本：`v0.1.5-20261004`（registry 冻结 tag，代码以此为准）
+
+| 章 | 章题 | 对应源文件 |
+| :--- | :--- | :--- |
+| 21 | 项目一启动：实验室管理系统导览与 Rails 入门坡道 | `app/controllers/catalog_controller.rb` |
+| 22 | 第一个 CRUD：资源路由与型号字典 | `app/controllers/catalog_controller.rb` |
+| 23 | 模型校验与统一错误响应：规格字典 | `app/controllers/catalog_controller.rb` |
+| 24 | 关联设计与 link/unlink 模式：专项、项目与标准 | `app/controllers/inspection_dictionary_controller.rb` + `app/services/inspection_dictionary/inspection_junction_service.rb` |
+| 25 | 多对多与界面配置：参数、标准关联与参数界面 | `app/controllers/inspection_dictionary_controller.rb` + `app/controllers/param_interfaces_controller.rb` + `app/services/inspection_dictionary/inspection_junction_service.rb` + `app/services/inspection_dictionary/param_interface_junctions.rb` |
+| 26 | 从字典到业务单据：合同管理 | `app/controllers/contracts_controller.rb` |
+| 27 | 接样单：单据 CRUD、流程历史与详情聚合 | `app/controllers/receipts_controller.rb` + `app/controllers/samples_controller.rb` |
+| 28 | 样品与检测记录：嵌套业务数据 | `app/controllers/samples_controller.rb` + `app/controllers/test_records_controller.rb` |
+| 29 | 流转与状态机：提交、分配与数据录入 | `app/controllers/receipts_controller.rb` + `app/services/receipts/report_flow_service.rb` |
+| 30 | 报告四阶段：审核、批准、发放、归档 | `app/controllers/receipts_controller.rb` + `app/services/receipts/report_flow_service.rb` |
+| 31 | 报表与聚合查询：统计仪表盘 | `app/controllers/summary_controller.rb` |
+| 32 | 登录、会话与租户初识：项目一收官 | `app/controllers/auth_controller.rb` |
 ## 快速链接
 
 - [CLAUDE.md](CLAUDE.md) — 开发约定与编码规范
