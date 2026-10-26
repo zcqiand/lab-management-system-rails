@@ -1,7 +1,7 @@
 {
-  "api_synced_sha": "85daa9051326c7f825dc8cc640f4586d5409cd06",
-  "api_synced_at": "2026-10-02T12:58:38.769086+00:00",
+  "api_synced_sha": "7de29fd8fa679500e17248fb77997c9b22c60403",
+  "api_synced_at": "2026-10-26T18:26:17.809290+00:00",
   "api_synced_cmd": "gen-shared.sh",
-  "shared_sha": "85daa9051326c7f825dc8cc640f4586d5409cd06",
+  "shared_sha": "7de29fd8fa679500e17248fb77997c9b22c60403",
   "consumer_repo": "lab-management-system-rails"
 }
