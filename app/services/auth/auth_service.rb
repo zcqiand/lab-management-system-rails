@@ -205,10 +205,12 @@ module Auth
 
     # REQ-2026-023 live 回归（2026-10-11 五目标 401 指纹）：密码登录用户落
     # directory（镜像 upsert_lab_user 链）——me/switch_tenant 的 resolve_user
-    # 按 sub=saas user id 解析，不落目录必 unknown user 401。email 缺失降级
-    # username 作 upsert 键（ADR-0008 同款 email 桥接约定）。
+    # 按 sub=saas user id 解析，不落目录必 unknown user 401。5.120 家族裁定：
+    # upsert 首选 username（login/me 自洽，回 9 月基线），email 缺失才降级——
+    # 目录 upsert 第二参兼作键与 username，email-first 曾让 me 报 email 而
+    # login 报 username（CT 627/628）。
     def upsert_login_directory(saas_user, user)
-      @directory.upsert(user.id, first_presence(saas_user['email'], user.username),
+      @directory.upsert(user.id, first_presence(user.username, saas_user['email']),
                         user.display_name, user.role_code)
     end
 

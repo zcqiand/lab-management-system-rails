@@ -121,6 +121,9 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     me = JSON.parse(response.body)
     assert_equal tid, me.dig('tenants', 0, 'tenantId')
     assert_equal body['tenants'].size, me['tenants'].size
+    # 5.120 家族裁定：login/me username 自洽（修前 email-first upsert 让 me 报
+    # alice@saas.local、login 报 alice——CT 627/628 分叉根源）
+    assert_equal body.dig('user', 'username'), me.dig('user', 'username')
 
     # switch-tenant：登录响应里的租户可切 → 200 + 3 段真 JWT（tenant_id=目标租户）
     post '/api/auth/switch-tenant', params: { tenantId: tid },
